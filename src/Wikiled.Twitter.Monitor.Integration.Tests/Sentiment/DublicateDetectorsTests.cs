@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
@@ -10,6 +12,8 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
         private DublicateDetectors instance;
 
         private MemoryCache cache;
+
+        private readonly ILogger<DublicateDetectors> logger = new Logger<DublicateDetectors>(new NullLoggerFactory());
 
         [SetUp]
         public void SetUp()
@@ -37,7 +41,7 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
 
         private DublicateDetectors CreateDublicateDetectors()
         {
-            return new DublicateDetectors(cache);
+            return new DublicateDetectors(cache, logger);
         }
     }
 }

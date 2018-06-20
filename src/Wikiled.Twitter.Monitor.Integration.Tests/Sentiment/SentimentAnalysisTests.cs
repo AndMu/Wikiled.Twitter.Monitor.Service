@@ -1,8 +1,8 @@
-using System;
-using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using Wikiled.Common.Net.Client;
+using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
 namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
@@ -12,9 +12,14 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
     {
         private SentimentAnalysis instance;
 
+        private SentimentConfig config;
+
         [SetUp]
         public void SetUp()
         {
+            config = new SentimentConfig();
+            config.Url = "http://sentiment.wikiled.com/api/sentiment/";
+            config.Domain = "TwitterMarket";
             instance = CreateSentimentAnalysis();
         }
 
@@ -27,7 +32,7 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
 
         private SentimentAnalysis CreateSentimentAnalysis()
         {
-            return new SentimentAnalysis(new StreamApiClient(new HttpClient(), new Uri("http://sentiment.wikiled.com/api/sentiment/")));
+            return new SentimentAnalysis(new StreamApiClientFactory(config), config, new Logger<SentimentAnalysis>(new NullLoggerFactory()));
         }
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Wikiled.Common.Arguments;
 using Wikiled.Server.Core.ActionFilters;
 using Wikiled.Server.Core.Helpers;
-using Wikiled.Twitter.Monitor.Api.Request;
+using Wikiled.Twitter.Monitor.Api.Response;
+using Wikiled.Twitter.Monitor.Service.Logic;
 
 namespace Wikiled.Twitter.Monitor.Service.Controllers
 {
@@ -17,18 +18,20 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 
         private readonly IIpResolve resolve;
 
-        public TwitterController(ILogger<TwitterController> logger, IIpResolve resolve)
+        private IStreamMonitor monitor;
+
+        public TwitterController(ILogger<TwitterController> logger, IIpResolve resolve, IStreamMonitor monitor)
         {
-            Guard.NotNull(() => resolve, resolve);
-            this.resolve = resolve;
-            this.logger = logger;
+            this.resolve = resolve ?? throw new ArgumentNullException(nameof(resolve));
+            this.monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [Route("track")]
+        [Route("result")]
         [HttpPost]
-        public async Task Track([FromBody]TrackRequest review)
+        public Task<TrackingResults> GetResult(string keyword)
         {
-            logger.LogInformation("Track [{0}]", resolve.GetRequestIp());
+            throw new NotImplementedException();
         }
 
         [Route("version")]

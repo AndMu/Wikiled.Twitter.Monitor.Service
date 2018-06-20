@@ -6,7 +6,7 @@
 
         string Keyword { get; }
 
-        void AddRating(double? rating);
+        void AddRating(string text, double? rating);
 
         double? AverageSentiment(int lastHours = 24);
 

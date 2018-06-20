@@ -1,106 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using NLog;
-using Tweetinvi.Models;
+using Microsoft.Extensions.Logging;
 using Tweetinvi.Models.DTO;
-using Wikiled.Common.Extensions;
-using Wikiled.Text.Analysis.Twitter;
-using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
 using Wikiled.Twitter.Streams;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic
 {
-    public class StreamMonitor : IDisposable
+    public class StreamMonitor : IDisposable, IStreamMonitor
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly IAuthentication authentication;
 
-        private TimingStreamSource streamSource;
+        private readonly ILogger<StreamMonitor> logger;
+
+        private readonly ITrackingInstance tracker;
+
+        private readonly IDublicateDetectors dublicateDetectors;
 
         private MonitoringStream stream;
 
-        private readonly IAuthentication authentication;
-
-        private readonly ISentimentAnalysis sentiment;
-
         private IDisposable subscription;
 
-        private TwitPersistency persistency;
-
-        private readonly Extractor extractor = new Extractor();
-
-        private readonly MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-
-        private DublicateDetectors dublicateDetectors;
-
-        private readonly Dictionary<string, IKeywordTracker> trackersTable = new Dictionary<string, IKeywordTracker>(StringComparer.OrdinalIgnoreCase);
-
-
-        public StreamMonitor(IAuthentication authentication, ISentimentAnalysis sentiment, IKeywordTracker[] trackers)
+        public StreamMonitor(IAuthentication authentication, ITrackingInstance tracker, IDublicateDetectors dublicateDetectors, ILogger<StreamMonitor> logger)
         {
             this.authentication = authentication ?? throw new ArgumentNullException(nameof(authentication));
-            this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
-            trackersTable = trackers.ToDictionary(item => item.Keyword, item => item);
-            Trackers = trackers;
-        }
-
-        public IKeywordTracker[] Trackers { get; }
-
-        public void Start(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
-            }
-
-            path.EnsureDirectoryExistence();
-            dublicateDetectors = new DublicateDetectors(cache);
-            streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
-            stream = new MonitoringStream(authentication);
-            persistency = new TwitPersistency(streamSource);
-            stream.LanguageFilters = new[] { LanguageFilter.English };
-            subscription = stream.MessagesReceiving
-                .ObserveOn(TaskPoolScheduler.Default)
-                .Select(Save)
-                .Merge()
-                .Subscribe(item =>
-                {
-                    log.Debug("Processed message: {0}", item.Text);
-                });
-            Task.Factory.StartNew(async () => await stream.Start(Trackers.Select(item => item.Keyword).ToArray(), new string[] { }), TaskCreationOptions.LongRunning);
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.dublicateDetectors = dublicateDetectors ?? throw new ArgumentNullException(nameof(dublicateDetectors));
+            this.tracker = tracker ?? throw new ArgumentNullException(nameof(tracker));
+            Start();
         }
 
         public void Dispose()
         {
+            Stop();
+        }
+
+        private void Start()
+        {
+            logger.LogInformation("Starting stream...");
+            stream = new MonitoringStream(authentication);
+            stream.LanguageFilters = tracker.Languages;
+            subscription = stream.MessagesReceiving
+                .ObserveOn(TaskPoolScheduler.Default)
+                .Where(item => !dublicateDetectors.HasReceived(item.Text))
+                .Select(Save)
+                .Merge()
+                .Subscribe(item => { logger.LogDebug("Processed message: {0}", item.Text); });
+
+            Task.Factory.StartNew(
+                async () => await stream.Start(tracker.Trackers.Select(item => item.Keyword).ToArray(),
+                    new string[] { }), TaskCreationOptions.LongRunning);
+        }
+
+        private void Stop()
+        {
+            logger.LogInformation("Stopping stream...");
             subscription?.Dispose();
-            streamSource?.Dispose();
+            subscription = null;
             stream?.Dispose();
-            cache.Dispose();
+            stream = null;
         }
 
         private async Task<ITweetDTO> Save(ITweetDTO tweet)
         {
-            if (dublicateDetectors.HasReceived(tweet.Text))
-            {
-                return tweet;
-            }
-
-            var sentimentValue = await sentiment.MeasureSentiment(tweet.Text);
-            var saveTask = Task.Run(() => persistency?.Save(tweet, sentimentValue));
-            foreach (var cashTag in extractor.ExtractCashtags(tweet.Text))
-            {
-                if (trackersTable.TryGetValue(cashTag, out var tracker))
-                {
-                    tracker.AddRating(sentimentValue);
-                }
-            }
-
-            await saveTask;
+            await tracker.OnReceived(tweet);
             return tweet;
         }
     }

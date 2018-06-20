@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Wikiled.Text.Analysis.Twitter;
 
@@ -7,15 +8,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 {
     public class DublicateDetectors : IDublicateDetectors
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
-
         private readonly IMemoryCache cache;
+
+        private readonly ILogger<DublicateDetectors> logger;
 
         private readonly MessageCleanup cleanup = new MessageCleanup();
 
-        public DublicateDetectors(IMemoryCache cache)
+        public DublicateDetectors(IMemoryCache cache, ILogger<DublicateDetectors> logger)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public bool HasReceived(string text)
@@ -23,7 +25,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             text = cleanup.Cleanup(text);
             if (cache.TryGetValue(text, out bool _))
             {
-                log.Debug("Found dublicate: {0}", text);
+                logger.LogDebug("Found dublicate: {0}", text);
                 return true;
             }
 

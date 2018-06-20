@@ -22,8 +22,13 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         public string Keyword { get; }
 
-        public void AddRating(double? rating)
+        public void AddRating(string text, double? rating)
         {
+            if (!text.Contains(Keyword, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             var now = config.Now;
             var yesterday = now.AddDays(-1);
             ratings.Enqueue((config.Now, rating));

@@ -38,19 +38,19 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
             Assert.IsNull(resultSentiment);
             Assert.AreEqual(0, resultCount);
 
-            instance.AddRating(null);
+            instance.AddRating("AAPL", null);
             resultSentiment = instance.AverageSentiment();
             resultCount = instance.TotalWithSentiment();
             Assert.IsNull(resultSentiment);
             Assert.AreEqual(0, resultCount);
 
-            instance.AddRating(1);
+            instance.AddRating("AAPL", 1);
             resultSentiment = instance.AverageSentiment();
             resultCount = instance.TotalWithSentiment();
             Assert.AreEqual(1, resultSentiment);
             Assert.AreEqual(1, resultCount);
 
-            instance.AddRating(0);
+            instance.AddRating("AAPL", 0);
             resultSentiment = instance.AverageSentiment();
             resultCount = instance.TotalWithSentiment();
             Assert.AreEqual(0.5, resultSentiment);
@@ -61,10 +61,10 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
         public void CalculateSentimentExpire()
         {
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow);
-            instance.AddRating(1);
-            instance.AddRating(1);
+            instance.AddRating("AAPL", 1);
+            instance.AddRating("AAPL", 1);
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow.AddDays(2));
-            instance.AddRating(0);
+            instance.AddRating("AAPL", 0);
             var resultSentiment = instance.AverageSentiment();
             var resultCount = instance.TotalWithSentiment();
             Assert.AreEqual(0, resultSentiment);
@@ -75,8 +75,8 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
         public void CalculatedHours()
         {
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow);
-            instance.AddRating(1);
-            instance.AddRating(1);
+            instance.AddRating("AAPL", 1);
+            instance.AddRating("AAPL", 1);
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow.AddHours(2));
             
             var resultSentiment = instance.AverageSentiment(1);

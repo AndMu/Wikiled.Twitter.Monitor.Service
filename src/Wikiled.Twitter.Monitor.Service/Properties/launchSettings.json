@@ -11,15 +11,15 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/sentiment/version",
+      "launchUrl": "api/Twitter/version",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "Wikiled.Sentiment.Service": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/sentiment/version",
+      "launchUrl": "api/Twitter/version",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
