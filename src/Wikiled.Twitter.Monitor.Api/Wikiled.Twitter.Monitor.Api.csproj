@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Wikiled</Authors>
+    <Description>Wikiled Twitter Analysis Service API</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <ProjectUrl>https://github.com/AndMuWikiled.Twitter.Monitor.Service</ProjectUrl>    
+  </PropertyGroup>
+
+</Project>

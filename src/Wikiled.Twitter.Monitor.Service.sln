@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Service", "Wikiled.Twitter.Monitor.Service\Wikiled.Twitter.Monitor.Service.csproj", "{762F998A-82CA-4F80-962C-63FD84956EC0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Service.Tests", "Wikiled.Twitter.Monitor.Service.Tests\Wikiled.Twitter.Monitor.Service.Tests.csproj", "{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Api", "Wikiled.Twitter.Monitor.Api\Wikiled.Twitter.Monitor.Api.csproj", "{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{762F998A-82CA-4F80-962C-63FD84956EC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{762F998A-82CA-4F80-962C-63FD84956EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{762F998A-82CA-4F80-962C-63FD84956EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{762F998A-82CA-4F80-962C-63FD84956EC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4397618-51AC-43E3-8320-316A95C92749}
+	EndGlobalSection
+EndGlobal
