@@ -9,10 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
+using Wikiled.Common.Utilities.Config;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Monitor.Service
 {
@@ -29,7 +30,7 @@ namespace Wikiled.Twitter.Monitor.Service
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
             Env = env;
-            ReconfigureLogging();
+            ConfigurationExtension.ChangeNlog(Configuration);
             logger.Info($"Starting: {Assembly.GetExecutingAssembly().GetName().Version}");
         }
 
@@ -74,8 +75,8 @@ namespace Wikiled.Twitter.Monitor.Service
             // needed to load configuration from appsettings.json
             services.AddOptions();
 
-            services.Configure<TwitterConfig>(Configuration.GetSection("twitter"));
-            services.Configure<SentimentConfig>(Configuration.GetSection("sentiment"));
+            services.Configure<TwitterConfig>(options => Configuration.GetSection("twitter").Bind(options));
+            services.Configure<SentimentConfig>(options => Configuration.GetSection("sentiment").Bind(options));
 
             services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -93,48 +94,14 @@ namespace Wikiled.Twitter.Monitor.Service
         private void SetupOther(ContainerBuilder builder)
         {
             builder.RegisterType<IpResolve>().As<IIpResolve>();
+            builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
+            builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
             builder.RegisterType<StreamApiClientFactory>().As<IStreamApiClientFactory>();
             builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
             builder.RegisterType<StreamMonitor>().As<IStreamMonitor>().SingleInstance();
-        }
-
-        private void ReconfigureLogging()
-        {
-            // manually refresh of NLog configuration
-            // as it is not picking up global
-            LogManager.Configuration.Variables["logDirectory"] =
-                Configuration.GetSection("logging").GetValue<string>("path");
-
-            var logLevel = Configuration.GetValue<LogLevel>("Logging:LogLevel:Default");
-            switch (logLevel)
-            {
-                case LogLevel.Trace:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Trace;
-                    break;
-                case LogLevel.Debug:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Debug;
-                    break;
-                case LogLevel.Information:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Info;
-                    break;
-                case LogLevel.Warning:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Warn;
-                    break;
-                case LogLevel.Error:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Error;
-                    break;
-                case LogLevel.Critical:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Fatal;
-                    break;
-                case LogLevel.None:
-                    LogManager.GlobalThreshold = NLog.LogLevel.Off;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
     }
 }

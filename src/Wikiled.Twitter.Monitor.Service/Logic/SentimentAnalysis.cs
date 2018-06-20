@@ -3,7 +3,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Wikiled.Common.Net.Client;
 using Wikiled.Sentiment.Api.Request;
 using Wikiled.Sentiment.Text.Data.Review;
