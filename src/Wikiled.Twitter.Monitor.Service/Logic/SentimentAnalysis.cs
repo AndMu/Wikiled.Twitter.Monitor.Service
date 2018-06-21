@@ -23,10 +23,10 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
         public SentimentAnalysis(IStreamApiClientFactory factory, SentimentConfig config, ILogger<SentimentAnalysis> logger)
         {
             if (factory == null) throw new ArgumentNullException(nameof(factory));
-            client = factory.Contruct();
-            logger.LogInformation("Sentiment tracking for: {0} ({1})", config.Url, config.Domain);
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            client = factory.Contruct();
+            logger.LogInformation("Sentiment tracking for: {0} ({1})", config.Url, config.Domain);
         }
 
         public async Task<double?> MeasureSentiment(string text)
