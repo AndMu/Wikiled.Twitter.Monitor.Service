@@ -74,9 +74,8 @@ namespace Wikiled.Twitter.Monitor.Service
 
             // needed to load configuration from appsettings.json
             services.AddOptions();
-
-            services.Configure<TwitterConfig>(options => Configuration.GetSection("twitter").Bind(options));
-            services.Configure<SentimentConfig>(options => Configuration.GetSection("sentiment").Bind(options));
+            services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
+            services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
 
             services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
