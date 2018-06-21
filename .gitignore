@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /src/Wikiled.Sentiment.Service/resources
 /src/Wikiled.Sentiment.Service/lexicons
+/src/Wikiled.Twitter.Monitor.Service/data

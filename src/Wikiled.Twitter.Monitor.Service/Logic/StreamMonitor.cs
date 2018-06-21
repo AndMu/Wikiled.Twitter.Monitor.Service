@@ -66,7 +66,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private async Task<ITweetDTO> Save(ITweetDTO tweet)
         {
-            await tracker.OnReceived(tweet);
+            await Task.Run(() => tracker.OnReceived(tweet)).ConfigureAwait(false);
             return tweet;
         }
     }

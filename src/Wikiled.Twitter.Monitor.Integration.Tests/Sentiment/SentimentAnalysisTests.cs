@@ -18,7 +18,7 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
         public void SetUp()
         {
             config = new SentimentConfig();
-            config.Url = "http://sentiment.wikiled.com/api/sentiment/";
+            config.Url = "http://192.168.0.200:7017/api/sentiment";
             config.Domain = "TwitterMarket";
             instance = CreateSentimentAnalysis();
         }

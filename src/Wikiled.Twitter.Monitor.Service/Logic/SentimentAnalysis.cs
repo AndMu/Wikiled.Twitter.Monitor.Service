@@ -24,6 +24,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
         {
             if (factory == null) throw new ArgumentNullException(nameof(factory));
             client = factory.Contruct();
+            logger.LogInformation("Sentiment tracking for: {0} ({1})", config.Url, config.Domain);
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -31,13 +32,28 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
         public async Task<double?> MeasureSentiment(string text)
         {
             logger.LogDebug("MeasureSentiment");
-            WorkRequest request = new WorkRequest();
-            request.CleanText = true;
-            request.Documents = new[] { new SingleProcessingData(text) };
-            request.Domain = config.Domain;
-            var result = await client.PostRequest<WorkRequest, Document>("parsestream", request, CancellationToken.None).LastOrDefaultAsync();
-            logger.LogDebug("MeasureSentiment Calculated: {0}", result.Stars);
-            return result.Stars.HasValue ? RatingCalculator.ConvertToRaw(result.Stars.Value) : result.Stars;
+            try
+            {
+                WorkRequest request = new WorkRequest();
+                request.CleanText = true;
+                request.Documents = new[] { new SingleProcessingData(text) };
+                request.Domain = config.Domain;
+                var result = await client.PostRequest<WorkRequest, Document>("parsestream", request, CancellationToken.None).LastOrDefaultAsync();
+                if (result == null)
+                {
+                    logger.LogWarning("No meaningful response");
+                    return null;
+                }
+
+                logger.LogDebug("MeasureSentiment Calculated: {0}", result.Stars);
+                return result.Stars.HasValue ? RatingCalculator.ConvertToRaw(result.Stars.Value) : result.Stars;
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed sentiment processing");
+                return null;
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace Wikiled.Twitter.Monitor.Service.Logic
+﻿using System;
+
+namespace Wikiled.Twitter.Monitor.Service.Logic
 {
-    public interface IStreamMonitor
+    public interface IStreamMonitor : IDisposable
     {
-        void Dispose();
+        ITrackingInstance Trackers { get; }
     }
 }

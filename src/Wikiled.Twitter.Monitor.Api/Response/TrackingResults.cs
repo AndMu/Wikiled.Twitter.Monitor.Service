@@ -6,6 +6,8 @@ namespace Wikiled.Twitter.Monitor.Api.Response
     {
         public string Keyword { get; set; }
 
+        public int Total { get; set; }
+
         public Dictionary<string, SentimentResult> Sentiment { get; set; }
     }
 }

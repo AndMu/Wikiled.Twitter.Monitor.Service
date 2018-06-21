@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Wikiled.Server.Core.ActionFilters;
@@ -18,7 +17,7 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 
         private readonly IIpResolve resolve;
 
-        private IStreamMonitor monitor;
+        private readonly IStreamMonitor monitor;
 
         public TwitterController(ILogger<TwitterController> logger, IIpResolve resolve, IStreamMonitor monitor)
         {
@@ -29,9 +28,25 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 
         [Route("result")]
         [HttpPost]
-        public Task<TrackingResults> GetResult(string keyword)
+        public IActionResult GetResult(string keyword)
         {
-            throw new NotImplementedException();
+            logger.LogInformation("GetResult [{0}] with <{1}> documents", resolve.GetRequestIp(), keyword);
+            var tracker = monitor.Trackers.Resolve(keyword);
+            if (tracker == null)
+            {
+                return NotFound("Unknwon keyword + " + keyword);
+            }
+
+            TrackingResults result = new TrackingResults();
+            result.Keyword = keyword;
+            int[] steps = { 24, 12, 6, 1 };
+            foreach (var step in steps)
+            {
+                result.Sentiment[$"{step}H"] = new SentimentResult { AverageSentiment = tracker.AverageSentiment(step), TotalMessages = tracker.TotalWithSentiment(step) };
+            }
+
+            result.Total = tracker.TotalMessages;
+            return Ok(result);
         }
 
         [Route("version")]

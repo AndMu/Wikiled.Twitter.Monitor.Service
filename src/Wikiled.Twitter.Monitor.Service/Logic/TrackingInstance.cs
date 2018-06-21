@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Wikiled.Common.Extensions;
@@ -15,6 +18,8 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly TwitPersistency persistency;
 
+        private Dictionary<string, IKeywordTracker> trackers;
+
         public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment)
         {
             if (trackingConfigFactory == null)
@@ -25,7 +30,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             var path = trackingConfigFactory.GetPath();
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+                throw new ArgumentException("Value cannot be null or whitespace", nameof(path));
             }
 
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
@@ -34,6 +39,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
+            trackers = Trackers.ToDictionary(item => item.Keyword, item => item, StringComparer.OrdinalIgnoreCase);
         }
 
         public IKeywordTracker[] Trackers { get; }
@@ -50,6 +56,17 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             }
 
             await saveTask;
+        }
+
+        public IKeywordTracker Resolve(string key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            trackers.TryGetValue(key, out var value);
+            return value;
         }
 
         public void Dispose()
