@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+using Wikiled.Common.Net.Client;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
@@ -10,6 +11,8 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
     [TestFixture]
     public class SentimentAnalysisTests
     {
+        private readonly ILogger<StreamApiClient> logger = new Logger<StreamApiClient>(new NullLoggerFactory());
+
         private SentimentAnalysis instance;
 
         private SentimentConfig config;
@@ -32,7 +35,7 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
 
         private SentimentAnalysis CreateSentimentAnalysis()
         {
-            return new SentimentAnalysis(new StreamApiClientFactory(config), config, new Logger<SentimentAnalysis>(new NullLoggerFactory()));
+            return new SentimentAnalysis(new StreamApiClientFactory(config, logger), config, new Logger<SentimentAnalysis>(new NullLoggerFactory()));
         }
     }
 }

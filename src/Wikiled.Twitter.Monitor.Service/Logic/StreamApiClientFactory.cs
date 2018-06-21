@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using Wikiled.Common.Net.Client;
 using Wikiled.Twitter.Monitor.Service.Configuration;
@@ -11,7 +10,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
     {
         private readonly SentimentConfig config;
 
-        private ILogger<StreamApiClient> logger;
+        private readonly ILogger<StreamApiClient> logger;
 
         public StreamApiClientFactory(SentimentConfig config, ILogger<StreamApiClient> logger)
         {
