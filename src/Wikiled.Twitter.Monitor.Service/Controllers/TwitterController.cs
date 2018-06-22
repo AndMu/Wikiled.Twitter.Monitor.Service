@@ -26,11 +26,11 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [Route("result")]
-        [HttpPost]
+        [Route("sentiment/{keyword}")]
+        [HttpGet]
         public IActionResult GetResult(string keyword)
         {
-            logger.LogInformation("GetResult [{0}] with <{1}> documents", resolve.GetRequestIp(), keyword);
+            logger.LogInformation("GetResult [{0}] with <{1}> keyword", resolve.GetRequestIp(), keyword);
             var tracker = monitor.Trackers.Resolve(keyword);
             if (tracker == null)
             {
