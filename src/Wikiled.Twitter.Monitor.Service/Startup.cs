@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.Server.Core.Errors;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
@@ -19,9 +19,9 @@ namespace Wikiled.Twitter.Monitor.Service
 {
     public class Startup
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<Startup> logger;
 
-        public Startup(IHostingEnvironment env)
+        public Startup(ILoggerFactory loggerFactory, IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -30,8 +30,9 @@ namespace Wikiled.Twitter.Monitor.Service
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
             Env = env;
-            ConfigurationExtension.ChangeNlog(Configuration);
-            logger.Info($"Starting: {Assembly.GetExecutingAssembly().GetName().Version}");
+            logger = loggerFactory.CreateLogger<Startup>();
+            Configuration.ChangeNlog();
+            logger.LogInformation($"Starting: {Assembly.GetExecutingAssembly().GetName().Version}");
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -52,6 +53,9 @@ namespace Wikiled.Twitter.Monitor.Service
 
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
+            app.UseExceptionHandlingMiddleware();
+            app.UseHttpStatusCodeExceptionMiddleware();
+
             app.UseMvc();
         }
 
@@ -85,7 +89,9 @@ namespace Wikiled.Twitter.Monitor.Service
             SetupOther(builder);
             builder.Populate(services);
             var appContainer = builder.Build();
-            logger.Info("Ready!");
+            // start stream
+            appContainer.Resolve<IStreamMonitor>();
+            logger.LogInformation("Ready!");
             // Create the IServiceProvider based on the container.
             return new AutofacServiceProvider(appContainer);
         }
