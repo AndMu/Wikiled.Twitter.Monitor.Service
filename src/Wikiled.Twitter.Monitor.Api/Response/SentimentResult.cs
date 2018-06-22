@@ -5,5 +5,10 @@
         public double? AverageSentiment { get; set; }
 
         public int TotalMessages { get; set; }
+
+        public override string ToString()
+        {
+            return $"Average Sentiment: {AverageSentiment}({TotalMessages})";
+        }
     }
 }
