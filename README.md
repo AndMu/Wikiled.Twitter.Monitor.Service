@@ -1,1 +1,1 @@
-# Sentiment service
+# Twitter monitoring service with Docker support
