@@ -36,15 +36,24 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                 return null;
             }
 
-            return config.Languages.Select(item =>
-            {
-                if (Enum.TryParse(item, out LanguageFilter value))
-                {
-                    return value;
-                }
+            return config.Languages.Select(
+                             item =>
+                             {
+                                 if (string.IsNullOrWhiteSpace(item))
+                                 {
+                                     return (LanguageFilter?)null;
+                                 }
 
-                throw new Exception("Unknown language + " + item);
-            }).ToArray();
+                                 if (Enum.TryParse(item, out LanguageFilter value))
+                                 {
+                                     return value;
+                                 }
+
+                                 throw new Exception("Unknown language: " + item);
+                             })
+                         .Where(item => item != null)
+                         .Select(item => item.Value)
+                         .ToArray();
         }
     }
 }
