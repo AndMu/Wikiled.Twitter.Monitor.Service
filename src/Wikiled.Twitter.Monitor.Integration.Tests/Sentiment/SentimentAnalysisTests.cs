@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Wikiled.Common.Net.Client;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
+using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 
 namespace Wikiled.Twitter.Monitor.Integration.Tests.Sentiment
 {

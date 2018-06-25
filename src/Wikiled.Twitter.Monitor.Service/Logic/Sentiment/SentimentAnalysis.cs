@@ -10,7 +10,7 @@ using Wikiled.Sentiment.Text.Sentiment;
 using Wikiled.Text.Analysis.Structure;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 
-namespace Wikiled.Twitter.Monitor.Service.Logic
+namespace Wikiled.Twitter.Monitor.Service.Logic.Sentiment
 {
     public class SentimentAnalysis : ISentimentAnalysis
     {

@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
-namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
+namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
 {
     [TestFixture]
     public class StockTrackerTests

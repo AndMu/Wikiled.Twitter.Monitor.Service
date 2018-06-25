@@ -13,6 +13,7 @@ using Wikiled.Server.Core.Errors;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
+using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Monitor.Service
@@ -79,14 +80,14 @@ namespace Wikiled.Twitter.Monitor.Service
             // needed to load configuration from appsettings.json
             services.AddOptions();
             services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
-            services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
+            var sentimentConfig = services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
 
             services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // Create the container builder.
             var builder = new ContainerBuilder();
-            SetupOther(builder);
+            SetupOther(builder, sentimentConfig);
             builder.Populate(services);
             var appContainer = builder.Build();
             // start stream
@@ -96,7 +97,7 @@ namespace Wikiled.Twitter.Monitor.Service
             return new AutofacServiceProvider(appContainer);
         }
 
-        private void SetupOther(ContainerBuilder builder)
+        private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
         {
             builder.RegisterType<IpResolve>().As<IIpResolve>();
             builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
@@ -104,7 +105,15 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
             builder.RegisterType<StreamApiClientFactory>().As<IStreamApiClientFactory>();
-            builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
+            if (sentiment.Track)
+            {
+                builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
+            }
+            else
+            {
+                builder.RegisterType<NullSentimentAnalysis>().As<ISentimentAnalysis>();
+            }
+
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
             builder.RegisterType<StreamMonitor>().As<IStreamMonitor>().SingleInstance();
         }

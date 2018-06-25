@@ -6,6 +6,7 @@ using MoreLinq;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Wikiled.Common.Extensions;
+using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic
@@ -18,7 +19,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly TwitPersistency persistency;
 
-        private Dictionary<string, IKeywordTracker> trackers;
+        private readonly Dictionary<string, IKeywordTracker> trackers;
 
         public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment)
         {

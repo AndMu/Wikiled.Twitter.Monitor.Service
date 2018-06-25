@@ -6,7 +6,7 @@ using Moq;
 using NUnit.Framework;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
-namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
+namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
 {
     [TestFixture]
     public class DublicateDetectorsTests

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Wikiled.Twitter.Monitor.Service.Logic
+namespace Wikiled.Twitter.Monitor.Service.Logic.Sentiment
 {
     public interface ISentimentAnalysis
     {
