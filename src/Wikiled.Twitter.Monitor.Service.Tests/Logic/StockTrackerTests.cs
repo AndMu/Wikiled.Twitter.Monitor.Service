@@ -2,7 +2,7 @@ using System;
 using Moq;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
-using Wikiled.Twitter.Monitor.Service.Logic;
+using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
 {
@@ -11,7 +11,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
     {
         private Mock<IApplicationConfiguration> mockApplicationConfiguration;
 
-        private KeywordTracker instance;
+        private Tracker instance;
 
         [SetUp]
         public void SetUp()
@@ -23,9 +23,9 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
         [Test]
         public void Construct()
         {
-            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(null, "Test"));
-            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(mockApplicationConfiguration.Object, null));
-            Assert.AreEqual("AAPL", instance.Keyword);
+            Assert.Throws<ArgumentNullException>(() => new Tracker(null, "Test", true));
+            Assert.Throws<ArgumentNullException>(() => new Tracker(mockApplicationConfiguration.Object, null, true));
+            Assert.AreEqual("AAPL", instance.Value);
             Assert.AreEqual(0, instance.TotalMessages);
         }
 
@@ -85,9 +85,9 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
             Assert.AreEqual(0, resultCount);
         }
 
-        private KeywordTracker CreateStockTracker()
+        private Tracker CreateStockTracker()
         {
-            return new KeywordTracker(mockApplicationConfiguration.Object, "AAPL");
+            return new Tracker(mockApplicationConfiguration.Object, "AAPL", true);
         }
     }
 }

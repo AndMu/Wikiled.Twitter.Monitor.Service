@@ -1,10 +1,12 @@
-﻿namespace Wikiled.Twitter.Monitor.Service.Logic
+﻿namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
-    public interface IKeywordTracker
+    public interface ITracker
     {
         int TotalMessages { get; }
 
-        string Keyword { get; }
+        string Value { get; }
+
+        bool IsKeyword { get; }
 
         void AddRating(string text, double? rating);
 

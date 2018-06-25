@@ -4,27 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using Wikiled.Common.Utilities.Config;
 
-namespace Wikiled.Twitter.Monitor.Service.Logic
+namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
-    public class KeywordTracker : IKeywordTracker
+    public class Tracker : ITracker
     {
         private readonly IApplicationConfiguration config;
 
         private readonly ConcurrentQueue<(DateTime Date, double? Rating)> ratings = new ConcurrentQueue<(DateTime, double?)>();
 
-        public KeywordTracker(IApplicationConfiguration config, string keyword)
+        public Tracker(IApplicationConfiguration config, string keyword, bool isKeyword)
         {
-            Keyword = keyword ?? throw new ArgumentNullException(nameof(keyword));
+            Value = keyword ?? throw new ArgumentNullException(nameof(keyword));
+            IsKeyword = isKeyword;
             this.config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
         public int TotalMessages => ratings.Count;
 
-        public string Keyword { get; }
+        public string Value { get; }
+
+        public bool IsKeyword { get; }
 
         public void AddRating(string text, double? rating)
         {
-            if (!text.Contains(Keyword, StringComparison.OrdinalIgnoreCase))
+            if (!text.Contains(Value, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }

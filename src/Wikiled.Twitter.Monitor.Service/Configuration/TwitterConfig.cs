@@ -6,6 +6,8 @@
 
         public string[] Keywords { get; set; }
 
+        public string[] Users { get; set; }
+
         public string[] Languages { get; set; }
     }
 }

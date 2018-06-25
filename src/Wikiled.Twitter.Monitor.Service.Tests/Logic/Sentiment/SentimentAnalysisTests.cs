@@ -7,7 +7,7 @@ using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 
-namespace Wikiled.Twitter.Monitor.Service.Tests.Sentiment
+namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Sentiment
 {
     [TestFixture]
     public class SentimentAnalysisTests

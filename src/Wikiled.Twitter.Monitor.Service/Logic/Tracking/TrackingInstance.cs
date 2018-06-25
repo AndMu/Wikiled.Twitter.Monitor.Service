@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MoreLinq;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Wikiled.Common.Extensions;
 using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 using Wikiled.Twitter.Persistency;
 
-namespace Wikiled.Twitter.Monitor.Service.Logic
+namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public class TrackingInstance : ITrackingInstance
     {
@@ -19,7 +18,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly TwitPersistency persistency;
 
-        private readonly Dictionary<string, IKeywordTracker> trackers;
+        private readonly Dictionary<string, ITracker> trackers;
 
         public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment)
         {
@@ -40,10 +39,10 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-            trackers = Trackers.ToDictionary(item => item.Keyword, item => item, StringComparer.OrdinalIgnoreCase);
+            trackers = Trackers.ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
         }
 
-        public IKeywordTracker[] Trackers { get; }
+        public ITracker[] Trackers { get; }
 
         public LanguageFilter[] Languages { get; }
 
@@ -59,7 +58,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             await saveTask;
         }
 
-        public IKeywordTracker Resolve(string key)
+        public ITracker Resolve(string key)
         {
             if (key == null)
             {

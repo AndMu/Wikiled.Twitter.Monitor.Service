@@ -14,6 +14,7 @@ using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
+using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Monitor.Service

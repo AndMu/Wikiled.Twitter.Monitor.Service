@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Options;
 using Tweetinvi.Models;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 
-namespace Wikiled.Twitter.Monitor.Service.Logic
+namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public class TrackingConfigFactory : ITrackingConfigFactory
     {
@@ -24,9 +24,20 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             return config.Persistency;
         }
 
-        public IKeywordTracker[] GetTrackers()
+        public ITracker[] GetTrackers()
         {
-            return config.Keywords.Select(item => new KeywordTracker(application, item)).ToArray();
+            List<ITracker> tracker = new List<ITracker>();
+            if (config.Keywords?.Length > 0)
+            {
+                tracker.AddRange(config.Keywords.Select(item => new Tracker(application, item, true)));
+            }
+
+            if (config.Users?.Length > 0)
+            {
+                tracker.AddRange(config.Users.Where(item => item.StartsWith("@")).Select(item => new Tracker(application, item, false)));
+            }
+
+            return tracker.ToArray();
         }
 
         public LanguageFilter[] GetLanguages()

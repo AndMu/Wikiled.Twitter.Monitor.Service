@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models.DTO;
+using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 using Wikiled.Twitter.Security;
 using Wikiled.Twitter.Streams;
 
@@ -48,11 +49,10 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                 .Where(item => !dublicateDetectors.HasReceived(item.Text))
                 .Select(Save)
                 .Merge()
-                .Subscribe(item => { logger.LogDebug("Processed message: {0}", item.Text); });
-
-            Task.Factory.StartNew(
-                async () => await stream.Start(Trackers.Trackers.Select(item => item.Keyword).ToArray(),
-                    new string[] { }), TaskCreationOptions.LongRunning);
+                .Subscribe(item => { logger.LogDebug("Processed message: {0} ({1})", item.Text, item.Language); });
+            var keywords = Trackers.Trackers.Where(item => item.IsKeyword).Select(item => item.Value).ToArray();
+            var users = Trackers.Trackers.Where(item => !item.IsKeyword).Select(item => item.Value).ToArray();
+            Task.Factory.StartNew(async () => await stream.Start(keywords, users), TaskCreationOptions.LongRunning);
         }
 
         private void Stop()
