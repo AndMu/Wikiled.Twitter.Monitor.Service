@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Wikiled.Text.Analysis.Twitter;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic

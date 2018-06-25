@@ -1,12 +1,12 @@
 using System;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.Twitter.Monitor.Service.Configuration;
-using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
-namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
+namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
 {
     [TestFixture]
     public class TrackingConfigFactoryTests
@@ -39,13 +39,17 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
             Assert.AreEqual(0, result.Length);
         }
 
-        [Test]
-        public void GetTrackers()
+        [TestCase("Test", "Test", false, 1)]
+        [TestCase("Test", "@Test", false, 2)]
+        [TestCase("Test", "@Test", true, 3)]
+        [TestCase("#Test", "@Test", true, 2)]
+        public void GetTrackers(string keyword, string user, bool hashkey, int expected)
         {
-            config.Keywords = new [] {"Test"};
-            config.Users = new[] { "@Test" };
+            config.HashKeywords = hashkey;
+            config.Keywords = new[] { keyword };
+            config.Users = new[] { user };
             var result = instance.GetTrackers();
-            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(expected, result.Length);
         }
 
         [Test]
@@ -53,9 +57,15 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
         {
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
                 null,
-                mockApplicationConfiguration.Object));
+                mockApplicationConfiguration.Object,
+                new NullLogger<TrackingConfigFactory>()));
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
                 config,
+                null,
+                new NullLogger<TrackingConfigFactory>()));
+            Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
+                config,
+                mockApplicationConfiguration.Object,
                 null));
         }
 
@@ -63,7 +73,8 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
         {
             return new TrackingConfigFactory(
                 config,
-                mockApplicationConfiguration.Object);
+                mockApplicationConfiguration.Object,
+                new NullLogger<TrackingConfigFactory>());
         }
     }
 }
