@@ -7,7 +7,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public interface ITrackingInstance : IDisposable
     {
-        ITracker[] Trackers { get; }
+        ITracker[] KeywordTrackers { get; }
 
         LanguageFilter[] Languages { get; }
 

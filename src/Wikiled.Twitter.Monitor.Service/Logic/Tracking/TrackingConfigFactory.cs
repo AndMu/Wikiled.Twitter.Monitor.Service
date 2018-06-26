@@ -39,7 +39,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 if (config.HashKeywords)
                 {
                     logger.LogDebug("Creating hashkey versions");
-                    tracker.AddRange(config.Keywords.Where(item => !item.StartsWith("#")).Select(item => new Tracker(application, item, true)));
+                    tracker.AddRange(config.Keywords.Where(item => !item.StartsWith("#")).Select(item => new Tracker(application, "#" + item, true)));
                     logger.LogDebug("Total keywords: {0}", tracker.Count);
                 }
             }
