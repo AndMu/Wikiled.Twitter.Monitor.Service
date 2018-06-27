@@ -18,7 +18,9 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly TwitPersistency persistency;
 
-        private readonly Dictionary<string, ITracker> trackers;
+        private readonly Dictionary<string, ITracker> keywordTrackers;
+
+        private readonly Dictionary<string, ITracker> userTrackers;
 
         public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment)
         {
@@ -39,7 +41,8 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-            trackers = Trackers.ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            keywordTrackers = Trackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            userTrackers = Trackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
         }
 
         public ITracker[] Trackers { get; }
@@ -55,6 +58,11 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 tracker.AddRating(tweet.Text, sentimentValue);
             }
 
+            if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out var trackerUser))
+            {
+                trackerUser.AddRating(tweet.CreatedBy.Name, sentimentValue);
+            }
+
             await saveTask;
         }
 
@@ -65,7 +73,12 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentNullException(nameof(key));
             }
 
-            trackers.TryGetValue(key, out var value);
+            if (keywordTrackers.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+
+            userTrackers.TryGetValue(key, out value);
             return value;
         }
 
