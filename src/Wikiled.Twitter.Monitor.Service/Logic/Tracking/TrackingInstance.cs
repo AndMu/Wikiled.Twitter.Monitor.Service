@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Wikiled.Common.Extensions;
@@ -52,7 +53,8 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         public async Task OnReceived(ITweetDTO tweet)
         {
             var sentimentValue = await sentiment.MeasureSentiment(tweet.Text);
-            var saveTask = Task.Run(() => persistency?.Save(tweet, sentimentValue));
+            var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
+            var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
             foreach (var tracker in Trackers)
             {
                 tracker.AddRating(tweet.Text, sentimentValue);

@@ -4,6 +4,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Tweetinvi;
 using Tweetinvi.Models.DTO;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 using Wikiled.Twitter.Security;
@@ -42,6 +43,8 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
         private void Start()
         {
             logger.LogInformation("Starting stream...");
+            var auth = authentication.Authenticate();
+            Auth.SetUserCredentials(auth.ConsumerKey, auth.ConsumerSecret, auth.AccessToken, auth.AccessTokenSecret);
             stream = new MonitoringStream(authentication);
             stream.LanguageFilters = Trackers.Languages;
             subscription = stream.MessagesReceiving

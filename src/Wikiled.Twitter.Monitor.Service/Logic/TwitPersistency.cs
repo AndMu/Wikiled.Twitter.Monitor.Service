@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using CsvHelper;
-using Tweetinvi.Models.DTO;
+using Tweetinvi.Models;
 using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic
@@ -17,7 +17,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             this.streamSource = streamSource;
         }
 
-        public void Save(ITweetDTO message, double? sentiment)
+        public void Save(ITweet message, double? sentiment)
         {
             var text = message.Text.Replace("\r\n", " ").Replace("\n", " ");
             lock (syncRoot)
@@ -30,6 +30,11 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                     csvDataTarget.WriteField(message.CreatedAt);
                     csvDataTarget.WriteField(message.Id);
                     csvDataTarget.WriteField(message.CreatedBy.Id);
+                    csvDataTarget.WriteField(message.RetweetedTweet?.Id);
+                    csvDataTarget.WriteField(message.RetweetedTweet?.CreatedBy.Id);
+                    csvDataTarget.WriteField(message.QuotedTweet?.Id);
+                    csvDataTarget.WriteField(message.QuotedTweet?.CreatedBy.Id);
+                    csvDataTarget.WriteField(message.Language);
                     csvDataTarget.WriteField(sentiment);
                     csvDataTarget.WriteField(text);
                     csvDataTarget.NextRecord();
