@@ -14,11 +14,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         public TwitPersistency(IStreamSource streamSource)
         {
-            this.streamSource = streamSource;
+            this.streamSource = streamSource ?? throw new System.ArgumentNullException(nameof(streamSource));
         }
 
         public void Save(ITweet message, double? sentiment)
         {
+            if (message == null)
+            {
+                throw new System.ArgumentNullException(nameof(message));
+            }
+
             var text = message.Text.Replace("\r\n", " ").Replace("\n", " ");
             lock (syncRoot)
             {
@@ -30,10 +35,24 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                     csvDataTarget.WriteField(message.CreatedAt);
                     csvDataTarget.WriteField(message.Id);
                     csvDataTarget.WriteField(message.CreatedBy.Id);
-                    csvDataTarget.WriteField(message.RetweetedTweet?.Id);
-                    csvDataTarget.WriteField(message.RetweetedTweet?.CreatedBy.Id);
-                    csvDataTarget.WriteField(message.QuotedTweet?.Id);
-                    csvDataTarget.WriteField(message.QuotedTweet?.CreatedBy.Id);
+                    string type = "Message";
+                    if (message.RetweetedTweet != null)
+                    {
+                        csvDataTarget.WriteField(message.RetweetedTweet.Id);
+                        csvDataTarget.WriteField(message.RetweetedTweet.CreatedBy.Id);
+                        type = "Retweet";
+                    }
+                    else
+                    {
+                        csvDataTarget.WriteField(message.QuotedTweet?.Id);
+                        csvDataTarget.WriteField(message.QuotedTweet?.CreatedBy.Id);
+                        if (message.QuotedTweet != null)
+                        {
+                            type = "Quote";
+                        }
+                    }
+
+                    csvDataTarget.WriteField(type);
                     csvDataTarget.WriteField(message.Language);
                     csvDataTarget.WriteField(sentiment);
                     csvDataTarget.WriteField(text);

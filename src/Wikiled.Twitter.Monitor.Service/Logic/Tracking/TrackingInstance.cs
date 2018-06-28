@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
@@ -23,11 +24,18 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly Dictionary<string, ITracker> userTrackers;
 
-        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment)
+        private ILogger<TrackingInstance> logger;
+
+        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ILoggerFactory loggerFactory)
         {
             if (trackingConfigFactory == null)
             {
                 throw new ArgumentNullException(nameof(trackingConfigFactory));
+            }
+
+            if (loggerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(loggerFactory));
             }
 
             var path = trackingConfigFactory.GetPath();
@@ -36,6 +44,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentException("Value cannot be null or whitespace", nameof(path));
             }
 
+            logger = loggerFactory.CreateLogger<TrackingInstance>();
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
             Trackers = trackingConfigFactory.GetTrackers();
             Languages = trackingConfigFactory.GetLanguages();
@@ -52,20 +61,27 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         public async Task OnReceived(ITweetDTO tweet)
         {
-            var sentimentValue = await sentiment.MeasureSentiment(tweet.Text);
-            var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
-            var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
-            foreach (var tracker in Trackers)
+            try
             {
-                tracker.AddRating(tweet.Text, sentimentValue);
-            }
+                var sentimentValue = await sentiment.MeasureSentiment(tweet.Text);
+                var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
+                var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
+                foreach (var tracker in Trackers)
+                {
+                    tracker.AddRating(tweet.Text, sentimentValue);
+                }
 
-            if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out var trackerUser))
+                if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out var trackerUser))
+                {
+                    trackerUser.AddRating(tweet.CreatedBy.Name, sentimentValue);
+                }
+
+                await saveTask;
+            }
+            catch (Exception ex)
             {
-                trackerUser.AddRating(tweet.CreatedBy.Name, sentimentValue);
+                logger.LogError(ex, "Failed processing");
             }
-
-            await saveTask;
         }
 
         public ITracker Resolve(string key)

@@ -6,7 +6,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Sentiment
     {
         public Task<double?> MeasureSentiment(string text)
         {
-            return null;
+            return Task.FromResult<double?>(null);
         }
     }
 }

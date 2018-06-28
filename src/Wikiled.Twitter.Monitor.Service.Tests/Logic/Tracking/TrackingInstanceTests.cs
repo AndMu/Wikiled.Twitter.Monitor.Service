@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using NLog.Extensions.Logging;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.Twitter.Monitor.Service.Configuration;
@@ -22,7 +23,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
         public void SetUp()
         {
             var config = new TwitterConfig();
-            config.Keywords = new[] {"Test"};
+            config.Keywords = new[] { "Test" };
             config.HashKeywords = true;
             config.Persistency = "Test";
             trackingConfigFactory = new TrackingConfigFactory(config, new ApplicationConfiguration(), new NullLogger<TrackingConfigFactory>());
@@ -41,9 +42,15 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
         {
             Assert.Throws<ArgumentNullException>(() => new TrackingInstance(
                 null,
-                mockSentimentAnalysis.Object));
+                mockSentimentAnalysis.Object,
+                new NLogLoggerFactory()));
             Assert.Throws<ArgumentNullException>(() => new TrackingInstance(
                 trackingConfigFactory,
+                null,
+                new NLogLoggerFactory()));
+            Assert.Throws<ArgumentNullException>(() => new TrackingInstance(
+                trackingConfigFactory,
+                mockSentimentAnalysis.Object,
                 null));
         }
 
@@ -51,7 +58,8 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
         {
             return new TrackingInstance(
                 trackingConfigFactory,
-                mockSentimentAnalysis.Object);
+                mockSentimentAnalysis.Object,
+                new NullLoggerFactory());
         }
     }
 }
