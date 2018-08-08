@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -8,7 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Wikiled.Common.Net.Client;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.Sentiment.Api.Request;
+using Wikiled.Sentiment.Api.Service;
 using Wikiled.Server.Core.Errors;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
@@ -88,6 +92,7 @@ namespace Wikiled.Twitter.Monitor.Service
 
             // Create the container builder.
             var builder = new ContainerBuilder();
+            SetupServices(builder, sentimentConfig);
             SetupOther(builder, sentimentConfig);
             builder.Populate(services);
             var appContainer = builder.Build();
@@ -108,15 +113,30 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<StreamApiClientFactory>().As<IStreamApiClientFactory>();
             if (sentiment.Track)
             {
-                builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
+                builder.RegisterType<TwitterSentimentAnalysis>().As<ITwitterSentimentAnalysis>();
             }
             else
             {
-                builder.RegisterType<NullSentimentAnalysis>().As<ISentimentAnalysis>();
+                builder.RegisterType<NullSentimentAnalysis>().As<ITwitterSentimentAnalysis>();
             }
 
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
             builder.RegisterType<StreamMonitor>().As<IStreamMonitor>().SingleInstance();
+        }
+
+        private void SetupServices(ContainerBuilder builder, SentimentConfig sentiment)
+        {
+            logger.LogInformation("Setting up services...");
+            builder.Register(context => new StreamApiClientFactory(context.Resolve<ILoggerFactory>(),
+                                                            new HttpClient { Timeout = TimeSpan.FromMinutes(10) },
+                                                            new Uri(sentiment.Url)))
+                .As<IStreamApiClientFactory>();
+            var request = new WorkRequest();
+            request.CleanText = true;
+            request.Domain = sentiment.Domain;
+            builder.RegisterInstance(request);
+            builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>(); 
+            logger.LogInformation("Register sentiment: {0} {1}", sentiment.Url, sentiment.Domain);
         }
     }
 }

@@ -12,4 +12,8 @@
     <ProjectUrl>https://github.com/AndMuWikiled.Twitter.Monitor.Service</ProjectUrl>    
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Wikiled.Common.Net" Version="1.1.5" />
+  </ItemGroup>
+
 </Project>

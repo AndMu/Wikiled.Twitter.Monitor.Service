@@ -16,7 +16,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
     {
         private readonly TimingStreamSource streamSource;
 
-        private readonly ISentimentAnalysis sentiment;
+        private readonly ITwitterSentimentAnalysis sentiment;
 
         private readonly TwitPersistency persistency;
 
@@ -26,7 +26,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private ILogger<TrackingInstance> logger;
 
-        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ILoggerFactory loggerFactory)
+        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ITwitterSentimentAnalysis sentiment, ILoggerFactory loggerFactory)
         {
             if (trackingConfigFactory == null)
             {

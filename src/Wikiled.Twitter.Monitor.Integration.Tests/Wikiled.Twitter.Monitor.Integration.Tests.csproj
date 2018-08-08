@@ -6,10 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.8.3" />
+    <PackageReference Include="Moq" Version="4.9.0" />
     <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
-    <packagereference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <packagereference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="Wikiled.Server.Core.Testing" Version="1.2.8" />
   </ItemGroup>
 
   <ItemGroup>

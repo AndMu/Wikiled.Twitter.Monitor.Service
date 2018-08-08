@@ -15,7 +15,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
     {
         private TrackingConfigFactory trackingConfigFactory;
 
-        private Mock<ISentimentAnalysis> mockSentimentAnalysis;
+        private Mock<ITwitterSentimentAnalysis> mockSentimentAnalysis;
 
         private TrackingInstance instance;
 
@@ -27,7 +27,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             config.HashKeywords = true;
             config.Persistency = "Test";
             trackingConfigFactory = new TrackingConfigFactory(config, new ApplicationConfiguration(), new NullLogger<TrackingConfigFactory>());
-            mockSentimentAnalysis = new Mock<ISentimentAnalysis>();
+            mockSentimentAnalysis = new Mock<ITwitterSentimentAnalysis>();
             instance = CreateInstance();
         }
 
