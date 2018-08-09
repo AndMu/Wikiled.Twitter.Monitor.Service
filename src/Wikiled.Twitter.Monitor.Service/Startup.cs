@@ -110,7 +110,6 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
-            builder.RegisterType<StreamApiClientFactory>().As<IStreamApiClientFactory>();
             if (sentiment.Track)
             {
                 builder.RegisterType<TwitterSentimentAnalysis>().As<ITwitterSentimentAnalysis>();
