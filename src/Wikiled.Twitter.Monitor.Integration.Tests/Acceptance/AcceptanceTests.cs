@@ -36,8 +36,9 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Acceptance
         public async Task Measure()
         {
             var analysis = new TwitterAnalysis(new ApiClientFactory(wrapper.Client, wrapper.Client.BaseAddress));
-            var result = await analysis.GetTrackingResults("APPL", CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(10, result);
+            var result = await analysis.GetTrackingResults("aaPL", CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual("aaPL", result.Keyword);
+            Assert.AreEqual(0, result.Total);
         }
     }
 }

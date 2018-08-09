@@ -25,7 +25,7 @@ namespace Wikiled.Twitter.Monitor.Api.Service
                 throw new ArgumentNullException(nameof(keyword));
             }
 
-            var result = await client.GetRequest<RawResponse<TrackingResults>>($"api/twitter/{keyword}", token).ConfigureAwait(false);
+            var result = await client.GetRequest<RawResponse<TrackingResults>>($"api/twitter/sentiment/{keyword}", token).ConfigureAwait(false);
             if (!result.IsSuccess)
             {
                 throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
