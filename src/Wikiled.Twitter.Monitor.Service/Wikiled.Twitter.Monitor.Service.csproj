@@ -13,7 +13,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="Wikiled.Server.Core" Version="1.2.10" />
     <PackageReference Include="Wikiled.Twitter" Version="1.4.0" />
-    <PackageReference Include="Wikiled.Common.Net" Version="1.1.5" />
+    <PackageReference Include="Wikiled.Common.Net" Version="1.1.6" />
     <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.1" />
     <PackageReference Include="Wikiled.Sentiment.Api" Version="1.1.18" />
   </ItemGroup>

@@ -63,7 +63,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         {
             try
             {
-                var sentimentValue = await sentiment.MeasureSentiment(tweet.Text);
+                var sentimentValue = await sentiment.MeasureSentiment(tweet.Text).ConfigureAwait(false);
                 var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
                 var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
                 foreach (var tracker in Trackers)
@@ -76,7 +76,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                     trackerUser.AddRating(tweet.CreatedBy.Name, sentimentValue);
                 }
 
-                await saveTask;
+                await saveTask.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
