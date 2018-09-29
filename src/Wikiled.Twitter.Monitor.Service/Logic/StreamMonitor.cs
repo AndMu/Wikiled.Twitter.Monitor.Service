@@ -55,7 +55,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                 .Subscribe(item => { logger.LogDebug("Processed message: {0} ({1})", item.Text, item.Language); });
             var keywords = Trackers.Trackers.Where(item => item.IsKeyword).Select(item => item.Value).ToArray();
             var users = Trackers.Trackers.Where(item => !item.IsKeyword).Select(item => item.Value).ToArray();
-            Task.Factory.StartNew(async () => await stream.Start(keywords, users), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(async () => await stream.Start(keywords, users).ConfigureAwait(false), TaskCreationOptions.LongRunning);
         }
 
         private void Stop()
