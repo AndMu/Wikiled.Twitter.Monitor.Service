@@ -47,16 +47,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
             logger = loggerFactory.CreateLogger<TrackingInstance>();
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
-            KeywordTrackers = trackingConfigFactory.GetTrackers();
+            Trackers = trackingConfigFactory.GetTrackers();
             Languages = trackingConfigFactory.GetLanguages();
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-            keywordTrackers = KeywordTrackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
-            userTrackers = KeywordTrackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            keywordTrackers = Trackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            userTrackers = Trackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
         }
 
-        public IKeywordTracker[] KeywordTrackers { get; }
+        public IKeywordTracker[] Trackers { get; }
 
         public LanguageFilter[] Languages { get; }
 
@@ -68,7 +68,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
                 var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
                 var rating = new RatingRecord(DateTime.UtcNow, sentimentValue);
-                foreach (var tracker in KeywordTrackers)
+                foreach (var tracker in Trackers)
                 {
                     tracker.Tracker.AddRating(rating);
                 }
