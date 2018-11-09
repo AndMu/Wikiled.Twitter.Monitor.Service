@@ -1,4 +1,5 @@
 ﻿using System;
+using Wikiled.Common.Extensions;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.MachineLearning.Mathematics.Tracking;
 
@@ -13,12 +14,15 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentNullException(nameof(config));
             }
 
-            Value = keyword ?? throw new ArgumentNullException(nameof(keyword));
+            Keyword = keyword ?? throw new ArgumentNullException(nameof(keyword));
             IsKeyword = isKeyword;
+            RawKeyword = keyword.RemoveBeginingNonLetters();
             Tracker = new Tracker(config);
         }
 
-        public string Value { get; }
+        public string Keyword { get; }
+
+        public string RawKeyword { get; }
 
         public bool IsKeyword { get; }
 

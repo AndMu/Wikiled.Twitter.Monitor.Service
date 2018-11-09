@@ -1,11 +1,11 @@
 ﻿using Tweetinvi.Models;
-using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Twitter.Monitor.Service.Configuration;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public interface ITrackingConfigFactory
     {
-        string GetPath();
+        TwitterConfig Config { get; }
 
         IKeywordTracker[] GetTrackers();
 

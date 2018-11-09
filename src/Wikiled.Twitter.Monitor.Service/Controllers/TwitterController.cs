@@ -31,6 +31,12 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
         public IActionResult GetResult(string keyword)
         {
             logger.LogInformation("GetResult [{0}] with <{1}> keyword", resolve.GetRequestIp(), keyword);
+            if (string.IsNullOrEmpty(keyword))
+            {
+                logger.LogWarning("Empty keyword");
+                return NoContent();
+            }
+
             Logic.Tracking.IKeywordTracker tracker = monitor.Trackers.Resolve(keyword);
             if (tracker == null)
             {

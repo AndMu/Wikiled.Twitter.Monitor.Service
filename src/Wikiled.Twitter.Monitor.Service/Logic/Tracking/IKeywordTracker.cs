@@ -4,7 +4,9 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public interface IKeywordTracker
     {
-        string Value { get; }
+        string Keyword { get; }
+
+        string RawKeyword { get; }
 
         bool IsKeyword { get; }
 

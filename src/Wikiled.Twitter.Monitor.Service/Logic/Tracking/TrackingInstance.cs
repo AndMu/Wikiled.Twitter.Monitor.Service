@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
@@ -21,9 +20,9 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly TwitPersistency persistency;
 
-        private readonly Dictionary<string, IKeywordTracker> keywordTrackers;
+        private readonly Dictionary<string, IKeywordTracker> keywordTrackers = new Dictionary<string, IKeywordTracker>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<string, IKeywordTracker> userTrackers;
+        private readonly Dictionary<string, IKeywordTracker> userTrackers = new Dictionary<string, IKeywordTracker>(StringComparer.OrdinalIgnoreCase);
 
         private readonly ILogger<TrackingInstance> logger;
 
@@ -39,7 +38,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentNullException(nameof(loggerFactory));
             }
 
-            var path = trackingConfigFactory.GetPath();
+            string path = trackingConfigFactory.Config.Persistency;
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("Value cannot be null or whitespace", nameof(path));
@@ -52,8 +51,24 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-            keywordTrackers = Trackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
-            userTrackers = Trackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+
+            foreach (IKeywordTracker tracker in Trackers)
+            {
+                if (tracker.IsKeyword)
+                {
+                    keywordTrackers[tracker.Keyword] = tracker;
+                    if (trackingConfigFactory.Config.HashKeywords &&
+                        !tracker.Keyword.StartsWith("#"))
+                    {
+                        keywordTrackers["#" + tracker.RawKeyword] = tracker;
+                    }
+
+                }
+                else
+                {
+                    userTrackers[tracker.Keyword] = tracker;
+                }
+            }
         }
 
         public IKeywordTracker[] Trackers { get; }
@@ -64,16 +79,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         {
             try
             {
-                var sentimentValue = await sentiment.Measure(tweet.Text).ConfigureAwait(false);
-                var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
-                var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
-                var rating = new RatingRecord(DateTime.UtcNow, sentimentValue);
-                foreach (var tracker in Trackers)
+                double? sentimentValue = await sentiment.Measure(tweet.Text).ConfigureAwait(false);
+                ITweet tweetItem = Tweet.GenerateTweetFromDTO(tweet);
+                Task saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
+                RatingRecord rating = new RatingRecord(DateTime.UtcNow, sentimentValue);
+                foreach (IKeywordTracker tracker in Trackers)
                 {
                     tracker.Tracker.AddRating(rating);
                 }
 
-                if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out var trackerUser))
+                if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out IKeywordTracker trackerUser))
                 {
                     trackerUser.Tracker.AddRating(rating);
                 }
@@ -93,7 +108,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (keywordTrackers.TryGetValue(key, out var value))
+            if (keywordTrackers.TryGetValue(key, out IKeywordTracker value))
             {
                 return value;
             }

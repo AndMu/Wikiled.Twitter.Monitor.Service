@@ -26,7 +26,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
         {
             Assert.Throws<ArgumentNullException>(() => new KeywordTracker(null, "Test", true));
             Assert.Throws<ArgumentNullException>(() => new KeywordTracker(mockApplicationConfiguration.Object, null, true));
-            Assert.AreEqual("AAPL", instance.Value);
+            Assert.AreEqual("AAPL", instance.Keyword);
         }
 
         [Test]
