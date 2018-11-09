@@ -82,7 +82,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 double? sentimentValue = await sentiment.Measure(tweet.Text).ConfigureAwait(false);
                 ITweet tweetItem = Tweet.GenerateTweetFromDTO(tweet);
                 Task saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
-                RatingRecord rating = new RatingRecord(DateTime.UtcNow, sentimentValue);
+                RatingRecord rating = new RatingRecord(tweet.Id.ToString(), DateTime.UtcNow, sentimentValue);
                 foreach (IKeywordTracker tracker in Trackers)
                 {
                     tracker.Tracker.AddRating(rating);

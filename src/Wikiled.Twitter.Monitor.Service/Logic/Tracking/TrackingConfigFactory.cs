@@ -11,18 +11,20 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public class TrackingConfigFactory : ITrackingConfigFactory
     {
-
         private readonly IApplicationConfiguration application;
 
         private readonly ILogger<TrackingConfigFactory> logger;
 
+        private readonly ILoggerFactory loggerFactory;
+
         private readonly IExpireTracking expireTracking;
 
-        public TrackingConfigFactory(ILogger<TrackingConfigFactory> logger, TwitterConfig config, IApplicationConfiguration application, IExpireTracking expireTracking)
+        public TrackingConfigFactory(ILoggerFactory loggerFactory, TwitterConfig config, IApplicationConfiguration application, IExpireTracking expireTracking)
         {
             this.Config = config ?? throw new ArgumentNullException(nameof(config));
+            this.loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            logger = loggerFactory.CreateLogger<TrackingConfigFactory>();
             this.expireTracking = expireTracking ?? throw new ArgumentNullException(nameof(expireTracking));
         }
 
@@ -34,14 +36,14 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             if (Config.Keywords?.Length > 0)
             {
                 logger.LogDebug("Adding keywords");
-                tracker.AddRange(Config.Keywords.Select(item => new KeywordTracker(application, item, true)));
+                tracker.AddRange(Config.Keywords.Select(item => new KeywordTracker(application, loggerFactory, item, true)));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
             }
 
             if (Config.Users?.Length > 0)
             {
                 logger.LogDebug("Adding users");
-                tracker.AddRange(Config.Users.Where(item => item.StartsWith("@")).Select(item => new KeywordTracker(application, item, false)));
+                tracker.AddRange(Config.Users.Where(item => item.StartsWith("@")).Select(item => new KeywordTracker(application, loggerFactory, item, false)));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
             }
 
