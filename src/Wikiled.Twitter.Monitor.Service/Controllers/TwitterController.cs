@@ -34,8 +34,8 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
             var tracker = monitor.Trackers.Resolve(keyword);
             if (tracker == null)
             {
-                logger.LogWarning("Unknwon keyword + " + keyword);
-                return NotFound("Unknwon keyword + " + keyword);
+                logger.LogWarning("Unknown keyword + " + keyword);
+                return NotFound("Unknown keyword + " + keyword);
             }
 
             TrackingResults result = new TrackingResults();
