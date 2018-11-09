@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
@@ -16,11 +17,14 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly ILogger<TrackingConfigFactory> logger;
 
-        public TrackingConfigFactory(TwitterConfig config, IApplicationConfiguration application, ILogger<TrackingConfigFactory> logger)
+        private readonly IExpireTracking expireTracking;
+
+        public TrackingConfigFactory(ILogger<TrackingConfigFactory> logger, TwitterConfig config, IApplicationConfiguration application, IExpireTracking expireTracking)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.expireTracking = expireTracking ?? throw new ArgumentNullException(nameof(expireTracking));
         }
 
         public string GetPath()
@@ -28,18 +32,18 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             return config.Persistency;
         }
 
-        public ITracker[] GetTrackers()
+        public IKeywordTracker[] GetTrackers()
         {
-            List<ITracker> tracker = new List<ITracker>();
+            List<IKeywordTracker> tracker = new List<IKeywordTracker>();
             if (config.Keywords?.Length > 0)
             {
                 logger.LogDebug("Adding keywords");
-                tracker.AddRange(config.Keywords.Select(item => new Tracker(application, item, true)));
+                tracker.AddRange(config.Keywords.Select(item => new KeywordTracker(application, item, true)));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
                 if (config.HashKeywords)
                 {
                     logger.LogDebug("Creating hashkey versions");
-                    tracker.AddRange(config.Keywords.Where(item => !item.StartsWith("#")).Select(item => new Tracker(application, "#" + item, true)));
+                    tracker.AddRange(config.Keywords.Where(item => !item.StartsWith("#")).Select(item => new KeywordTracker(application, "#" + item, true)));
                     logger.LogDebug("Total keywords: {0}", tracker.Count);
                 }
             }
@@ -47,8 +51,13 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             if (config.Users?.Length > 0)
             {
                 logger.LogDebug("Adding users");
-                tracker.AddRange(config.Users.Where(item => item.StartsWith("@")).Select(item => new Tracker(application, item, false)));
+                tracker.AddRange(config.Users.Where(item => item.StartsWith("@")).Select(item => new KeywordTracker(application, item, false)));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
+            }
+
+            foreach (var keywordTracker in tracker)
+            {
+                expireTracking.Register(keywordTracker.Tracker);
             }
 
             return tracker.ToArray();

@@ -1,4 +1,5 @@
 ﻿using Tweetinvi.Models;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
@@ -6,7 +7,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
     {
         string GetPath();
 
-        ITracker[] GetTrackers();
+        IKeywordTracker[] GetTrackers();
 
         LanguageFilter[] GetLanguages();
     }

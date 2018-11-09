@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Reactive.Concurrency;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -11,13 +12,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Wikiled.Common.Net.Client;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Sentiment.Api.Request;
 using Wikiled.Sentiment.Api.Service;
 using Wikiled.Server.Core.Errors;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
-using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 using Wikiled.Twitter.Security;
 
@@ -94,6 +95,7 @@ namespace Wikiled.Twitter.Monitor.Service
             var builder = new ContainerBuilder();
             SetupServices(builder, sentimentConfig);
             SetupOther(builder, sentimentConfig);
+            SetupTracking(builder);
             builder.Populate(services);
             var appContainer = builder.Build();
             // start stream
@@ -103,20 +105,28 @@ namespace Wikiled.Twitter.Monitor.Service
             return new AutofacServiceProvider(appContainer);
         }
 
+        private void SetupTracking(ContainerBuilder builder)
+        {
+            builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
+            builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
+            builder.RegisterInstance(new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(1)));
+            
+        }
+
         private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
         {
+            builder.RegisterInstance(TaskPoolScheduler.Default).As<IScheduler>();
             builder.RegisterType<IpResolve>().As<IIpResolve>();
             builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
-            builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
-            builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
+            builder.RegisterType<ExpireTracking>().As<IExpireTracking>().SingleInstance();
             if (sentiment.Track)
             {
-                builder.RegisterType<TwitterSentimentAnalysis>().As<ITwitterSentimentAnalysis>();
+                builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
             }
             else
             {
-                builder.RegisterType<NullSentimentAnalysis>().As<ITwitterSentimentAnalysis>();
+                builder.RegisterType<NullSentimentAnalysis>().As<ISentimentAnalysis>();
             }
 
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();

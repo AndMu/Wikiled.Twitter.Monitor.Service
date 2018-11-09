@@ -7,7 +7,8 @@ using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Wikiled.Common.Extensions;
-using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
+using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Api.Service;
 using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
@@ -16,17 +17,17 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
     {
         private readonly TimingStreamSource streamSource;
 
-        private readonly ITwitterSentimentAnalysis sentiment;
+        private readonly ISentimentAnalysis sentiment;
 
         private readonly TwitPersistency persistency;
 
-        private readonly Dictionary<string, ITracker> keywordTrackers;
+        private readonly Dictionary<string, IKeywordTracker> keywordTrackers;
 
-        private readonly Dictionary<string, ITracker> userTrackers;
+        private readonly Dictionary<string, IKeywordTracker> userTrackers;
 
-        private ILogger<TrackingInstance> logger;
+        private readonly ILogger<TrackingInstance> logger;
 
-        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ITwitterSentimentAnalysis sentiment, ILoggerFactory loggerFactory)
+        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ILoggerFactory loggerFactory)
         {
             if (trackingConfigFactory == null)
             {
@@ -46,16 +47,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
             logger = loggerFactory.CreateLogger<TrackingInstance>();
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
-            Trackers = trackingConfigFactory.GetTrackers();
+            KeywordTrackers = trackingConfigFactory.GetTrackers();
             Languages = trackingConfigFactory.GetLanguages();
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-            keywordTrackers = Trackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
-            userTrackers = Trackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            keywordTrackers = KeywordTrackers.Where(item => item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
+            userTrackers = KeywordTrackers.Where(item => !item.IsKeyword).ToDictionary(item => item.Value, item => item, StringComparer.OrdinalIgnoreCase);
         }
 
-        public ITracker[] Trackers { get; }
+        public IKeywordTracker[] KeywordTrackers { get; }
 
         public LanguageFilter[] Languages { get; }
 
@@ -63,17 +64,18 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         {
             try
             {
-                var sentimentValue = await sentiment.MeasureSentiment(tweet.Text).ConfigureAwait(false);
+                var sentimentValue = await sentiment.Measure(tweet.Text).ConfigureAwait(false);
                 var tweetItem = Tweet.GenerateTweetFromDTO(tweet);
                 var saveTask = Task.Run(() => persistency?.Save(tweetItem, sentimentValue));
-                foreach (var tracker in Trackers)
+                var rating = new RatingRecord(DateTime.UtcNow, sentimentValue);
+                foreach (var tracker in KeywordTrackers)
                 {
-                    tracker.AddRating(tweet.Text, sentimentValue);
+                    tracker.Tracker.AddRating(rating);
                 }
 
                 if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out var trackerUser))
                 {
-                    trackerUser.AddRating(tweet.CreatedBy.Name, sentimentValue);
+                    trackerUser.Tracker.AddRating(rating);
                 }
 
                 await saveTask.ConfigureAwait(false);
@@ -84,7 +86,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             }
         }
 
-        public ITracker Resolve(string key)
+        public IKeywordTracker Resolve(string key)
         {
             if (key == null)
             {

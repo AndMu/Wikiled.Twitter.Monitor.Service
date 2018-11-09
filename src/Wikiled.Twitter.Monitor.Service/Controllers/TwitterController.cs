@@ -1,7 +1,7 @@
-﻿using System;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Reflection;
 using Wikiled.Server.Core.ActionFilters;
 using Wikiled.Server.Core.Helpers;
 using Wikiled.Twitter.Monitor.Api.Response;
@@ -31,22 +31,24 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
         public IActionResult GetResult(string keyword)
         {
             logger.LogInformation("GetResult [{0}] with <{1}> keyword", resolve.GetRequestIp(), keyword);
-            var tracker = monitor.Trackers.Resolve(keyword);
+            Logic.Tracking.IKeywordTracker tracker = monitor.Trackers.Resolve(keyword);
             if (tracker == null)
             {
-                logger.LogWarning("Unknwon keyword + " + keyword);
-                return NotFound("Unknwon keyword + " + keyword);
+                logger.LogWarning("Unknown keyword + " + keyword);
+                return NotFound("Unknown keyword + " + keyword);
             }
 
-            TrackingResults result = new TrackingResults();
-            result.Keyword = keyword;
-            int[] steps = { 24, 12, 6, 1 };
-            foreach (var step in steps)
+            TrackingResults result = new TrackingResults
             {
-                result.Sentiment[$"{step}H"] = new SentimentResult { AverageSentiment = tracker.AverageSentiment(step), TotalMessages = tracker.TotalWithSentiment(step) };
+                Keyword = keyword
+            };
+            int[] steps = { 24, 12, 6, 1 };
+            foreach (int step in steps)
+            {
+                result.Sentiment[$"{step}H"] = new SentimentResult { AverageSentiment = tracker.Tracker.AverageSentiment(step), TotalMessages = tracker.Tracker.Count(lastHours: step) };
             }
 
-            result.Total = tracker.TotalMessages;
+            result.Total = tracker.Tracker.Count(false);
             return Ok(result);
         }
 
@@ -54,7 +56,7 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
         [HttpGet]
         public string ServerVersion()
         {
-            var version = $"Version: [{Assembly.GetExecutingAssembly().GetName().Version}]";
+            string version = $"Version: [{Assembly.GetExecutingAssembly().GetName().Version}]";
             logger.LogInformation("Version request: {0}", version);
             return version;
         }

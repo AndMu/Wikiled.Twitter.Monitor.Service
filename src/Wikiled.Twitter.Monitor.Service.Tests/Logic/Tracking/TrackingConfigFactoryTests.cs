@@ -1,8 +1,10 @@
 using System;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
@@ -15,12 +17,18 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
 
         private Mock<IApplicationConfiguration> mockApplicationConfiguration;
 
+        private Mock<IExpireTracking> expireTracking;
+
         private TrackingConfigFactory instance;
+
+        private ILogger<TrackingConfigFactory> logger;
 
         [SetUp]
         public void SetUp()
         {
+            logger = new NullLogger<TrackingConfigFactory>();
             config = new TwitterConfig();
+            expireTracking = new Mock<IExpireTracking>();
             mockApplicationConfiguration = new Mock<IApplicationConfiguration>();
             instance = CreateFactory();
         }
@@ -56,25 +64,37 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
         public void Construct()
         {
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
-                null,
-                mockApplicationConfiguration.Object,
-                new NullLogger<TrackingConfigFactory>()));
+                                                     null,
+                                                     config,
+                                                     mockApplicationConfiguration.Object,
+                                                     expireTracking.Object));
+
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
-                config,
-                null,
-                new NullLogger<TrackingConfigFactory>()));
+                                                     logger,
+                                                     null,
+                                                     mockApplicationConfiguration.Object,
+                                                     expireTracking.Object));
+
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
-                config,
-                mockApplicationConfiguration.Object,
-                null));
+                                                     logger,
+                                                     config,
+                                                     null,
+                                                     expireTracking.Object));
+
+            Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
+                                                     logger,
+                                                     config,
+                                                     mockApplicationConfiguration.Object,
+                                                     null));
         }
 
         private TrackingConfigFactory CreateFactory()
         {
             return new TrackingConfigFactory(
+                logger,
                 config,
                 mockApplicationConfiguration.Object,
-                new NullLogger<TrackingConfigFactory>());
+                expireTracking.Object);
         }
     }
 }
