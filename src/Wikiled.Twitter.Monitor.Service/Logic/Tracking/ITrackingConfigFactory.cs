@@ -1,12 +1,13 @@
 ﻿using Tweetinvi.Models;
+using Wikiled.Twitter.Monitor.Service.Configuration;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public interface ITrackingConfigFactory
     {
-        string GetPath();
+        TwitterConfig Config { get; }
 
-        ITracker[] GetTrackers();
+        IKeywordTracker[] GetTrackers();
 
         LanguageFilter[] GetLanguages();
     }

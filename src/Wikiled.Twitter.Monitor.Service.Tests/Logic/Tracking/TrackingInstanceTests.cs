@@ -1,11 +1,14 @@
 using System;
+using System.Reactive.Concurrency;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NLog.Extensions.Logging;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
+using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Api.Service;
 using Wikiled.Twitter.Monitor.Service.Configuration;
-using Wikiled.Twitter.Monitor.Service.Logic.Sentiment;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
@@ -15,7 +18,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
     {
         private TrackingConfigFactory trackingConfigFactory;
 
-        private Mock<ITwitterSentimentAnalysis> mockSentimentAnalysis;
+        private Mock<ISentimentAnalysis> mockSentimentAnalysis;
 
         private TrackingInstance instance;
 
@@ -26,8 +29,14 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             config.Keywords = new[] { "Test" };
             config.HashKeywords = true;
             config.Persistency = "Test";
-            trackingConfigFactory = new TrackingConfigFactory(config, new ApplicationConfiguration(), new NullLogger<TrackingConfigFactory>());
-            mockSentimentAnalysis = new Mock<ITwitterSentimentAnalysis>();
+            trackingConfigFactory = new TrackingConfigFactory(
+                new NullLogger<TrackingConfigFactory>(),
+                config,
+                new ApplicationConfiguration(),
+                new ExpireTracking(TaskPoolScheduler.Default,
+                                   new NullLogger<ExpireTracking>(),
+                                   new TrackingConfiguration(TimeSpan.FromMinutes(10), TimeSpan.FromDays(1))));
+            mockSentimentAnalysis = new Mock<ISentimentAnalysis>();
             instance = CreateInstance();
         }
 
