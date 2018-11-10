@@ -21,12 +21,12 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
 
         private TrackingConfigFactory instance;
 
-        private ILogger<TrackingConfigFactory> logger;
+        private ILoggerFactory logger;
 
         [SetUp]
         public void SetUp()
         {
-            logger = new NullLogger<TrackingConfigFactory>();
+            logger = new NullLoggerFactory();
             config = new TwitterConfig();
             expireTracking = new Mock<IExpireTracking>();
             mockApplicationConfiguration = new Mock<IApplicationConfiguration>();

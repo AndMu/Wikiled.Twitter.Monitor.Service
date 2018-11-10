@@ -30,7 +30,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             config.HashKeywords = true;
             config.Persistency = "Test";
             trackingConfigFactory = new TrackingConfigFactory(
-                new NullLogger<TrackingConfigFactory>(),
+                new NullLoggerFactory(), 
                 config,
                 new ApplicationConfiguration(),
                 new ExpireTracking(TaskPoolScheduler.Default,
