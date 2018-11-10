@@ -15,7 +15,7 @@ namespace Wikiled.Twitter.Monitor.Api.Response
 
         public int Total { get; set; }
 
-        public Dictionary<string, SentimentResult> Sentiment { get; set; }
+        public Dictionary<string, SentimentResult> Sentiment { get; }
 
         public override string ToString()
         {

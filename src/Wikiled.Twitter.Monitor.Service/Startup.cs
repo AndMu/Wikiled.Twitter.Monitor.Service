@@ -62,7 +62,6 @@ namespace Wikiled.Twitter.Monitor.Service
             app.UseHttpsRedirection();
             app.UseExceptionHandlingMiddleware();
             app.UseHttpStatusCodeExceptionMiddleware();
-
             app.UseMvc();
         }
 
@@ -110,7 +109,6 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
             builder.RegisterInstance(new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(1)));
-            
         }
 
         private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
