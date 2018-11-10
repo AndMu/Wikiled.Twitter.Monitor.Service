@@ -43,7 +43,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
         [Test]
         public void Trackers()
         {
-            Assert.AreEqual(2, instance.Trackers.Length);
+            Assert.AreEqual(1, instance.Trackers.Length);
         }
 
         [Test]

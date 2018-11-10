@@ -16,7 +16,7 @@
     <PackageReference Include="Wikiled.Common.Net" Version="1.1.10" />
     <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.3" />
     <PackageReference Include="Wikiled.Sentiment.Api" Version="1.1.27" />
-    <PackageReference Include="Wikiled.MachineLearning" Version="2.3.2" />
+    <PackageReference Include="Wikiled.MachineLearning" Version="2.3.3" />
   </ItemGroup>
 
   <ItemGroup>
