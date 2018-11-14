@@ -43,7 +43,7 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
             int[] steps = { 24, 12, 6, 1 };
             foreach (int step in steps)
             {
-                result.Sentiment[$"{step}H"] = new TrackingResult { Average = tracker.Tracker.AverageSentiment(step), TotalMessages = tracker.Tracker.Count(lastHours: step) };
+                result.Sentiment[$"{step}H"] = new TrackingResult { Average = tracker.Tracker.CalculateAverageRating(step), TotalMessages = tracker.Tracker.Count(lastHours: step) };
             }
 
             result.Total = tracker.Tracker.Count(false);

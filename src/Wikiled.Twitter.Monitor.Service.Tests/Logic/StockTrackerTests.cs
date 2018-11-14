@@ -39,25 +39,25 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
         public void CalculateSentiment()
         {
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow);
-            var resultSentiment = instance.Tracker.AverageSentiment();
+            var resultSentiment = instance.Tracker.CalculateAverageRating();
             var resultCount = instance.Tracker.Count();
             Assert.IsNull(resultSentiment);
             Assert.AreEqual(0, resultCount);
 
             instance.Tracker.AddRating(new RatingRecord("1", DateTime.UtcNow, null));
-            resultSentiment = instance.Tracker.AverageSentiment();
+            resultSentiment = instance.Tracker.CalculateAverageRating();
             resultCount = instance.Tracker.Count();
             Assert.IsNull(resultSentiment);
             Assert.AreEqual(0, resultCount);
 
             instance.Tracker.AddRating(new RatingRecord("2", DateTime.UtcNow, 1));
-            resultSentiment = instance.Tracker.AverageSentiment();
+            resultSentiment = instance.Tracker.CalculateAverageRating();
             resultCount = instance.Tracker.Count();
             Assert.AreEqual(1, resultSentiment);
             Assert.AreEqual(1, resultCount);
 
             instance.Tracker.AddRating(new RatingRecord("3", DateTime.UtcNow, 0));
-            resultSentiment = instance.Tracker.AverageSentiment();
+            resultSentiment = instance.Tracker.CalculateAverageRating();
             resultCount = instance.Tracker.Count();
             Assert.AreEqual(0.5, resultSentiment);
             Assert.AreEqual(2, resultCount);
@@ -71,7 +71,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
             instance.Tracker.AddRating(new RatingRecord("2", DateTime.UtcNow, 1));
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow.AddDays(2));
             instance.Tracker.AddRating(new RatingRecord("3", DateTime.UtcNow, 0));
-            var resultSentiment = instance.Tracker.AverageSentiment();
+            var resultSentiment = instance.Tracker.CalculateAverageRating();
             var resultCount = instance.Tracker.Count(false);
             Assert.AreEqual(null, resultSentiment);
             Assert.AreEqual(0, resultCount);
@@ -85,7 +85,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
             instance.Tracker.AddRating(new RatingRecord("2", DateTime.UtcNow, 1));
             mockApplicationConfiguration.Setup(item => item.Now).Returns(DateTime.UtcNow.AddHours(2));
             
-            var resultSentiment = instance.Tracker.AverageSentiment(1);
+            var resultSentiment = instance.Tracker.CalculateAverageRating(1);
             var resultCount = instance.Tracker.Count(lastHours: 1);
             Assert.IsNull(resultSentiment);
             Assert.AreEqual(0, resultCount);
