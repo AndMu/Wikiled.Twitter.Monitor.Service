@@ -21,12 +21,12 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
 
         private TrackingConfigFactory instance;
 
-        private ILogger<TrackingConfigFactory> logger;
+        private ILoggerFactory logger;
 
         [SetUp]
         public void SetUp()
         {
-            logger = new NullLogger<TrackingConfigFactory>();
+            logger = new NullLoggerFactory();
             config = new TwitterConfig();
             expireTracking = new Mock<IExpireTracking>();
             mockApplicationConfiguration = new Mock<IApplicationConfiguration>();
@@ -47,17 +47,14 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             Assert.AreEqual(0, result.Length);
         }
 
-        [TestCase("Test", "Test", false, 1)]
-        [TestCase("Test", "@Test", false, 2)]
-        [TestCase("Test", "@Test", true, 3)]
-        [TestCase("#Test", "@Test", true, 2)]
-        public void GetTrackers(string keyword, string user, bool hashkey, int expected)
+        [Test]
+        public void GetTrackers()
         {
-            config.HashKeywords = hashkey;
-            config.Keywords = new[] { keyword };
-            config.Users = new[] { user };
+            config.HashKeywords = true;
+            config.Keywords = new[] { "Test" };
+            config.Users = new[] { "@Test" };
             var result = instance.GetTrackers();
-            Assert.AreEqual(expected, result.Length);
+            Assert.AreEqual(2, result.Length);
         }
 
         [Test]
