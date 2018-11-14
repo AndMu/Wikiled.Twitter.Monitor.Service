@@ -21,6 +21,16 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             Tracker = new Tracker(loggerFactory.CreateLogger<Tracker>(), config);
         }
 
+        public void AddRating(string text, RatingRecord record)
+        {
+            if (!text.Contains(Keyword, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            Tracker.AddRating(record);
+        }
+
         public string Keyword { get; }
 
         public string RawKeyword { get; }

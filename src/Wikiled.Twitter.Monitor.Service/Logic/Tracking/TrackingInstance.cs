@@ -85,7 +85,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 RatingRecord rating = new RatingRecord(tweet.Id.ToString(), DateTime.UtcNow, sentimentValue);
                 foreach (IKeywordTracker tracker in Trackers)
                 {
-                    tracker.Tracker.AddRating(rating);
+                    tracker.AddRating(tweet.Text, rating);
                 }
 
                 if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out IKeywordTracker trackerUser))

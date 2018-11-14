@@ -12,5 +12,6 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         ITracker Tracker { get; }
 
+        void AddRating(string text, RatingRecord record);
     }
 }
