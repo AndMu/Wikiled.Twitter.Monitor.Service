@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Wikiled.Twitter.Monitor.Api.Response;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Api.Service
 {

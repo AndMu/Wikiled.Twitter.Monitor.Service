@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Wikiled.Common.Net.Client;
-using Wikiled.Twitter.Monitor.Api.Response;
+using Wikiled.MachineLearning.Mathematics.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Api.Service
 {
@@ -16,7 +16,6 @@ namespace Wikiled.Twitter.Monitor.Api.Service
             client = factory.GetClient();
             client = client ?? throw new ArgumentNullException(nameof(client));
         }
-
 
         public async Task<TrackingResults> GetTrackingResults(string keyword, CancellationToken token)
         {
