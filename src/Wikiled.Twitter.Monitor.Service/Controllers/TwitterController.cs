@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Reflection;
 using Wikiled.Server.Core.ActionFilters;
-using Wikiled.Server.Core.Helpers;
+using Wikiled.Server.Core.Controllers;
 using Wikiled.Twitter.Monitor.Api.Response;
 using Wikiled.Twitter.Monitor.Service.Logic;
 
@@ -11,26 +10,22 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 {
     [Route("api/[controller]")]
     [TypeFilter(typeof(RequestValidationAttribute))]
-    public class TwitterController : Controller
+    public class TwitterController : BaseController
     {
         private readonly ILogger<TwitterController> logger;
 
-        private readonly IIpResolve resolve;
-
         private readonly IStreamMonitor monitor;
 
-        public TwitterController(ILogger<TwitterController> logger, IIpResolve resolve, IStreamMonitor monitor)
+        public TwitterController(ILoggerFactory loggerFactory, IStreamMonitor monitor) : base(loggerFactory)
         {
-            this.resolve = resolve ?? throw new ArgumentNullException(nameof(resolve));
             this.monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            logger = loggerFactory?.CreateLogger<TwitterController>() ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [Route("sentiment/{keyword}")]
         [HttpGet]
         public IActionResult GetResult(string keyword)
         {
-            logger.LogInformation("GetResult [{0}] with <{1}> keyword", resolve.GetRequestIp(), keyword);
             if (string.IsNullOrEmpty(keyword))
             {
                 logger.LogWarning("Empty keyword");
@@ -56,15 +51,6 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 
             result.Total = tracker.Tracker.Count(false);
             return Ok(result);
-        }
-
-        [Route("version")]
-        [HttpGet]
-        public string ServerVersion()
-        {
-            string version = $"Version: [{Assembly.GetExecutingAssembly().GetName().Version}]";
-            logger.LogInformation("Version request: {0}", version);
-            return version;
         }
     }
 }
