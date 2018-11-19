@@ -100,6 +100,7 @@ namespace Wikiled.Twitter.Monitor.Service
             var appContainer = builder.Build();
             // start stream
             appContainer.Resolve<IStreamMonitor>();
+            appContainer.Resolve<PersistencyTracking>();
             logger.LogInformation("Ready!");
             // Create the IServiceProvider based on the container.
             return new AutofacServiceProvider(appContainer);
