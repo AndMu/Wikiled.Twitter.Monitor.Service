@@ -6,11 +6,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
     {
         string Keyword { get; }
 
-        string RawKeyword { get; }
-
         bool IsKeyword { get; }
-
-        ITracker Tracker { get; }
 
         void AddRating(string text, RatingRecord record);
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -24,6 +25,8 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly ITrackingManager manager;
 
+        private readonly HashSet<string> users = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         public TrackingInstance(ILogger<TrackingInstance> logger, ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ITrackingManager manager)
         {
             if (logger == null)
@@ -46,6 +49,17 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.logger = logger;
             Trackers = trackingConfigFactory.GetTrackers();
+            foreach (var tracker in Trackers.Where(item => !item.IsKeyword))
+            {
+                if (users.Contains(tracker.Keyword))
+                {
+                    logger.LogWarning("Keyword is already added {0}", tracker.Keyword);
+                    continue;
+                }
+
+                users.Add(tracker.Keyword);
+            }
+
             Languages = trackingConfigFactory.GetLanguages();
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
@@ -69,7 +83,11 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                     tracker.AddRating(tweet.Text, rating);
                 }
 
-                manager.Resolve(tweet.CreatedBy.Name, "User").AddRating(rating);
+                if (users.Contains(tweet.CreatedBy.Name))
+                {
+                    manager.Resolve(tweet.CreatedBy.Name, "User").AddRating(rating);
+                }
+
                 await saveTask.ConfigureAwait(false);
             }
             catch (Exception ex)

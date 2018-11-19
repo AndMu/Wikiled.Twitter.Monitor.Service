@@ -1,5 +1,4 @@
 ﻿using System;
-using Wikiled.Common.Extensions;
 using Wikiled.MachineLearning.Mathematics.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
@@ -11,7 +10,6 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             Keyword = keyword ?? throw new ArgumentNullException(nameof(keyword));
             IsKeyword = isKeyword;
             Tracker = tracker ?? throw new ArgumentNullException(nameof(tracker));
-            RawKeyword = keyword.RemoveBeginingNonLetters();
         }
 
         public void AddRating(string text, RatingRecord record)
@@ -25,8 +23,6 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         }
 
         public string Keyword { get; }
-
-        public string RawKeyword { get; }
 
         public bool IsKeyword { get; }
 
