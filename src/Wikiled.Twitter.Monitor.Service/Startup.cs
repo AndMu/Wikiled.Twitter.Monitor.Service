@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Reflection;
@@ -84,7 +85,7 @@ namespace Wikiled.Twitter.Monitor.Service
 
             // needed to load configuration from appsettings.json
             services.AddOptions();
-            services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
+            var twitter = services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
             var sentimentConfig = services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
 
             services.AddMemoryCache();
@@ -94,7 +95,7 @@ namespace Wikiled.Twitter.Monitor.Service
             var builder = new ContainerBuilder();
             SetupServices(builder, sentimentConfig);
             SetupOther(builder, sentimentConfig);
-            SetupTracking(builder);
+            SetupTracking(builder, twitter.Persistency);
             builder.Populate(services);
             var appContainer = builder.Build();
             // start stream
@@ -104,11 +105,18 @@ namespace Wikiled.Twitter.Monitor.Service
             return new AutofacServiceProvider(appContainer);
         }
 
-        private void SetupTracking(ContainerBuilder builder)
+        private void SetupTracking(ContainerBuilder builder, string path)
         {
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
-            builder.RegisterType<TrackingInstance>().As<ITrackingInstance>();
-            builder.RegisterInstance(new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(1)));
+
+            builder.RegisterType<Tracker>().As<ITracker>();
+            builder.RegisterType<TrackingInstance>().As<ITrackingInstance>().SingleInstance();
+            builder.RegisterType<ExpireTracking>().As<ITrackingRegister>().SingleInstance();
+            builder.RegisterType<TrackingStream>().As<ITrackingRegister>().As<IRatingStream>().SingleInstance();
+            builder.RegisterType<PersistencyTracking>().SingleInstance();
+            builder.RegisterType<TrackingManager>().As<ITrackingManager>().SingleInstance();
+            builder.RegisterType<TrackerFactory>().As<ITrackerFactory>().SingleInstance();
+            builder.RegisterInstance(new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(1), Path.Combine(path, "ratings.csv")));
         }
 
         private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
@@ -117,7 +125,6 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<IpResolve>().As<IIpResolve>();
             builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
-            builder.RegisterType<ExpireTracking>().As<IExpireTracking>().SingleInstance();
             if (sentiment.Track)
             {
                 builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();

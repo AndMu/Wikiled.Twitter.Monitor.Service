@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
@@ -16,22 +15,21 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
 
         private KeywordTracker instance;
 
-        private ILoggerFactory loggerFactory;
+        private ITracker tracker;
 
         [SetUp]
         public void SetUp()
         {
-            loggerFactory = new NullLoggerFactory();
             mockApplicationConfiguration = new Mock<IApplicationConfiguration>();
+            tracker = new Tracker("Test", "Test", new NullLogger<Tracker>(), mockApplicationConfiguration.Object);
             instance = CreateStockTracker();
         }
 
         [Test]
         public void Construct()
         {
-            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(null, loggerFactory, "Test", true));
-            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(mockApplicationConfiguration.Object, loggerFactory, null, true));
-            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(mockApplicationConfiguration.Object, null, "test", true));
+            Assert.Throws<ArgumentNullException>(() => new KeywordTracker("Test", true, null));
+            Assert.Throws<ArgumentNullException>(() => new KeywordTracker(null, true, tracker));
             Assert.AreEqual("AAPL", instance.Keyword);
         }
 
@@ -93,7 +91,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic
 
         private KeywordTracker CreateStockTracker()
         {
-            return new KeywordTracker(mockApplicationConfiguration.Object, loggerFactory, "AAPL", true);
+            return new KeywordTracker("AAPL", true, tracker);
         }
     }
 }

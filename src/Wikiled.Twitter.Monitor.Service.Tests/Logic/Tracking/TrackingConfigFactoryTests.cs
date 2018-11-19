@@ -15,21 +15,20 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
     {
         private TwitterConfig config;
 
-        private Mock<IApplicationConfiguration> mockApplicationConfiguration;
-
-        private Mock<IExpireTracking> expireTracking;
+        private Mock<ITrackingManager> tracking;
 
         private TrackingConfigFactory instance;
 
-        private ILoggerFactory logger;
+        private ILogger<TrackingConfigFactory> logger;
 
         [SetUp]
         public void SetUp()
         {
-            logger = new NullLoggerFactory();
+            logger = new NullLogger<TrackingConfigFactory>();
             config = new TwitterConfig();
-            expireTracking = new Mock<IExpireTracking>();
-            mockApplicationConfiguration = new Mock<IApplicationConfiguration>();
+            tracking = new Mock<ITrackingManager>();
+            var tracker = new Mock<ITracker>();
+            tracking.Setup(item => item.Resolve(It.IsAny<string>(), It.IsAny<string>())).Returns(tracker.Object);
             instance = CreateFactory();
         }
 
@@ -63,25 +62,16 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
                                                      null,
                                                      config,
-                                                     mockApplicationConfiguration.Object,
-                                                     expireTracking.Object));
+                                                     tracking.Object));
 
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
                                                      logger,
                                                      null,
-                                                     mockApplicationConfiguration.Object,
-                                                     expireTracking.Object));
+                                                     tracking.Object));
 
             Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
                                                      logger,
                                                      config,
-                                                     null,
-                                                     expireTracking.Object));
-
-            Assert.Throws<ArgumentNullException>(() => new TrackingConfigFactory(
-                                                     logger,
-                                                     config,
-                                                     mockApplicationConfiguration.Object,
                                                      null));
         }
 
@@ -90,8 +80,7 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
             return new TrackingConfigFactory(
                 logger,
                 config,
-                mockApplicationConfiguration.Object,
-                expireTracking.Object);
+                tracking.Object);
         }
     }
 }

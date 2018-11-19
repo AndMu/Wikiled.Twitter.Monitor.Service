@@ -12,11 +12,11 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
     [TypeFilter(typeof(RequestValidationAttribute))]
     public class TwitterController : BaseController
     {
-        private readonly IStreamMonitor monitor;
+        private readonly ITrackingManager manager;
 
-        public TwitterController(ILoggerFactory loggerFactory, IStreamMonitor monitor) : base(loggerFactory)
+        public TwitterController(ILoggerFactory loggerFactory, ITrackingManager manager) : base(loggerFactory)
         {
-            this.monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
+            this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
         [Route("sentiment/{keyword}")]
@@ -29,13 +29,7 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
                 return NoContent();
             }
 
-            Logic.Tracking.IKeywordTracker tracker = monitor.Trackers.Resolve(keyword);
-            if (tracker == null)
-            {
-                Logger.LogWarning("Unknown keyword + " + keyword);
-                return NotFound("Unknown keyword + " + keyword);
-            }
-
+            var tracker = manager.Resolve(keyword, "Keyword");
             TrackingResults result = new TrackingResults
             {
                 Keyword = keyword
@@ -43,10 +37,10 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
             int[] steps = { 24, 12, 6, 1 };
             foreach (int step in steps)
             {
-                result.Sentiment[$"{step}H"] = new TrackingResult { Average = tracker.Tracker.CalculateAverageRating(step), TotalMessages = tracker.Tracker.Count(lastHours: step) };
+                result.Sentiment[$"{step}H"] = new TrackingResult { Average = tracker.CalculateAverageRating(step), TotalMessages = tracker.Count(lastHours: step) };
             }
 
-            result.Total = tracker.Tracker.Count(false);
+            result.Total = tracker.Count(false);
             return Ok(result);
         }
     }

@@ -20,22 +20,20 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly TwitPersistency persistency;
 
-        private readonly Dictionary<string, IKeywordTracker> keywordTrackers = new Dictionary<string, IKeywordTracker>(StringComparer.OrdinalIgnoreCase);
-
-        private readonly Dictionary<string, IKeywordTracker> userTrackers = new Dictionary<string, IKeywordTracker>(StringComparer.OrdinalIgnoreCase);
-
         private readonly ILogger<TrackingInstance> logger;
 
-        public TrackingInstance(ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ILoggerFactory loggerFactory)
+        private readonly ITrackingManager manager;
+
+        public TrackingInstance(ILogger<TrackingInstance> logger, ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ITrackingManager manager)
         {
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
             if (trackingConfigFactory == null)
             {
                 throw new ArgumentNullException(nameof(trackingConfigFactory));
-            }
-
-            if (loggerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(loggerFactory));
             }
 
             string path = trackingConfigFactory.Config.Persistency;
@@ -44,31 +42,14 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                 throw new ArgumentException("Value cannot be null or whitespace", nameof(path));
             }
 
-            logger = loggerFactory.CreateLogger<TrackingInstance>();
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
+            this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.logger = logger;
             Trackers = trackingConfigFactory.GetTrackers();
             Languages = trackingConfigFactory.GetLanguages();
             path.EnsureDirectoryExistence();
             streamSource = new TimingStreamSource(path, TimeSpan.FromDays(1));
             persistency = new TwitPersistency(streamSource);
-
-            foreach (IKeywordTracker tracker in Trackers)
-            {
-                if (tracker.IsKeyword)
-                {
-                    keywordTrackers[tracker.Keyword] = tracker;
-                    if (trackingConfigFactory.Config.HashKeywords &&
-                        !tracker.Keyword.StartsWith("#"))
-                    {
-                        keywordTrackers["#" + tracker.RawKeyword] = tracker;
-                    }
-
-                }
-                else
-                {
-                    userTrackers[tracker.Keyword] = tracker;
-                }
-            }
         }
 
         public IKeywordTracker[] Trackers { get; }
@@ -88,33 +69,13 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
                     tracker.AddRating(tweet.Text, rating);
                 }
 
-                if (userTrackers.TryGetValue(tweet.CreatedBy.Name, out IKeywordTracker trackerUser))
-                {
-                    trackerUser.Tracker.AddRating(rating);
-                }
-
+                manager.Resolve(tweet.CreatedBy.Name, "User").AddRating(rating);
                 await saveTask.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed processing");
             }
-        }
-
-        public IKeywordTracker Resolve(string key)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            if (keywordTrackers.TryGetValue(key, out IKeywordTracker value))
-            {
-                return value;
-            }
-
-            userTrackers.TryGetValue(key, out value);
-            return value;
         }
 
         public void Dispose()

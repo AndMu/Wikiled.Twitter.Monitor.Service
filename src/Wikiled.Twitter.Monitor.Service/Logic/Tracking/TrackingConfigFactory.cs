@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
-using Wikiled.Common.Utilities.Config;
 using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 
@@ -11,21 +10,15 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
     public class TrackingConfigFactory : ITrackingConfigFactory
     {
-        private readonly IApplicationConfiguration application;
-
         private readonly ILogger<TrackingConfigFactory> logger;
 
-        private readonly ILoggerFactory loggerFactory;
+        private readonly ITrackingManager manager;
 
-        private readonly IExpireTracking expireTracking;
-
-        public TrackingConfigFactory(ILoggerFactory loggerFactory, TwitterConfig config, IApplicationConfiguration application, IExpireTracking expireTracking)
+        public TrackingConfigFactory(ILogger<TrackingConfigFactory> logger, TwitterConfig config, ITrackingManager manager)
         {
-            this.Config = config ?? throw new ArgumentNullException(nameof(config));
-            this.loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-            this.application = application ?? throw new ArgumentNullException(nameof(application));
-            logger = loggerFactory.CreateLogger<TrackingConfigFactory>();
-            this.expireTracking = expireTracking ?? throw new ArgumentNullException(nameof(expireTracking));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
+            this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public TwitterConfig Config { get; }
@@ -36,20 +29,15 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
             if (Config.Keywords?.Length > 0)
             {
                 logger.LogDebug("Adding keywords");
-                tracker.AddRange(Config.Keywords.Select(item => new KeywordTracker(application, loggerFactory, item, true)));
+                tracker.AddRange(Config.Keywords.Select(item => new KeywordTracker(item, true, manager.Resolve(item, "Keyword"))));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
             }
 
             if (Config.Users?.Length > 0)
             {
                 logger.LogDebug("Adding users");
-                tracker.AddRange(Config.Users.Where(item => item.StartsWith("@")).Select(item => new KeywordTracker(application, loggerFactory, item, false)));
+                tracker.AddRange(Config.Users.Where(item => item.StartsWith("@")).Select(item => new KeywordTracker(item, false, manager.Resolve(item, "User"))));
                 logger.LogDebug("Total keywords: {0}", tracker.Count);
-            }
-
-            foreach (var keywordTracker in tracker)
-            {
-                expireTracking.Register(keywordTracker.Tracker);
             }
 
             return tracker.ToArray();

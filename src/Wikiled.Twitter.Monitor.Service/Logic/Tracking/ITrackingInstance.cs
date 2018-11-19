@@ -12,7 +12,5 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
         LanguageFilter[] Languages { get; }
 
         Task OnReceived(ITweetDTO tweet);
-
-        IKeywordTracker Resolve(string key);
     }
 }
