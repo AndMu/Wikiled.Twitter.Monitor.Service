@@ -114,6 +114,7 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>().SingleInstance();
             builder.RegisterType<ExpireTracking>().As<ITrackingRegister>().SingleInstance();
             builder.RegisterType<TrackingStream>().As<ITrackingRegister>().As<IRatingStream>().SingleInstance();
+
             builder.RegisterType<PersistencyTracking>().SingleInstance();
             builder.RegisterType<TrackingManager>().As<ITrackingManager>().SingleInstance();
             builder.RegisterType<TrackerFactory>().As<ITrackerFactory>().SingleInstance();

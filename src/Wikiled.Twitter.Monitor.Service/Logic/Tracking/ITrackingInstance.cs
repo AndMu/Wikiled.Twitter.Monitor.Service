@@ -5,7 +5,7 @@ using Tweetinvi.Models.DTO;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
-    public interface ITrackingInstance : IDisposable
+    public interface ITrackingInstance
     {
         IKeywordTracker[] Trackers { get; }
 

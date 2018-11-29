@@ -6,7 +6,7 @@ using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic
 {
-    public class TwitPersistency
+    public class TwitPersistency : ITwitPersistency
     {
         private readonly IStreamSource streamSource;
 

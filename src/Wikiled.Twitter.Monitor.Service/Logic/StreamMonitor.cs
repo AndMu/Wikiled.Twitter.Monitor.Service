@@ -20,16 +20,17 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly IDublicateDetectors dublicateDetectors;
 
-        private MonitoringStream stream;
+        private IMonitoringStream stream;
 
         private IDisposable subscription;
 
-        public StreamMonitor(IAuthentication authentication, ITrackingInstance tracker, IDublicateDetectors dublicateDetectors, ILogger<StreamMonitor> logger)
+        public StreamMonitor(ILogger<StreamMonitor> logger, IAuthentication authentication, ITrackingInstance tracker, IDublicateDetectors dublicateDetectors, IMonitoringStream stream)
         {
             this.authentication = authentication ?? throw new ArgumentNullException(nameof(authentication));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.dublicateDetectors = dublicateDetectors ?? throw new ArgumentNullException(nameof(dublicateDetectors));
             Trackers = tracker ?? throw new ArgumentNullException(nameof(tracker));
+            this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
             Start();
         }
 
@@ -45,7 +46,6 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             logger.LogInformation("Starting stream...");
             var auth = authentication.Authenticate();
             Auth.SetUserCredentials(auth.ConsumerKey, auth.ConsumerSecret, auth.AccessToken, auth.AccessTokenSecret);
-            stream = new MonitoringStream(authentication);
             stream.LanguageFilters = Trackers.Languages;
             subscription = stream.MessagesReceiving
                 .ObserveOn(TaskPoolScheduler.Default)
