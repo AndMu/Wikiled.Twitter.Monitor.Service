@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using Wikiled.Sentiment.Tracking.Logic;
 using Wikiled.Server.Core.ActionFilters;
 using Wikiled.Server.Core.Controllers;
@@ -41,6 +42,20 @@ namespace Wikiled.Twitter.Monitor.Service.Controllers
 
             result.Total = tracker.Count(false);
             return Ok(result);
+        }
+
+        [Route("history/{hours}/{keyword}")]
+        [HttpGet]
+        public IActionResult GetResultHistory(string keyword, int hours)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                Logger.LogWarning("Empty keyword");
+                return NoContent();
+            }
+
+            var tracker = manager.Resolve(keyword, "Keyword");
+            return Ok(tracker.GetRatings(hours).OrderByDescending(item => item.Date));
         }
     }
 }

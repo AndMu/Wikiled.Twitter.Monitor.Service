@@ -32,5 +32,21 @@ namespace Wikiled.Twitter.Monitor.Api.Service
 
             return result.Result.Value;
         }
+
+        public async Task<RatingRecord[]> GetTrackingHistory(string keyword, int hours, CancellationToken token)
+        {
+            if (keyword == null)
+            {
+                throw new ArgumentNullException(nameof(keyword));
+            }
+
+            var result = await client.GetRequest<RawResponse<RatingRecord[]>>($"api/twitter/history/{hours}/{keyword}", token).ConfigureAwait(false);
+            if (!result.IsSuccess)
+            {
+                throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
+            }
+
+            return result.Result.Value;
+        }
     }
 }

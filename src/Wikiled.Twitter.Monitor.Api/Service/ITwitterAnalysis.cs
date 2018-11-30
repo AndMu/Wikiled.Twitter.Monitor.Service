@@ -7,5 +7,7 @@ namespace Wikiled.Twitter.Monitor.Api.Service
     public interface ITwitterAnalysis
     {
         Task<TrackingResults> GetTrackingResults(string keyword, CancellationToken token);
+
+        Task<RatingRecord[]> GetTrackingHistory(string keyword, int hours, CancellationToken token);
     }
 }

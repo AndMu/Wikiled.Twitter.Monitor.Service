@@ -40,5 +40,13 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Acceptance
             Assert.AreEqual("$AMD", result.Keyword);
             Assert.AreEqual(0, result.Total);
         }
+
+        [Test]
+        public async Task GetTrackingHistory()
+        {
+            var analysis = new TwitterAnalysis(new ApiClientFactory(wrapper.Client, wrapper.Client.BaseAddress));
+            var result = await analysis.GetTrackingHistory("$AMD", 10, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(0, result.Length);
+        }
     }
 }
