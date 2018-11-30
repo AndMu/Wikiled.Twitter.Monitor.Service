@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using System.Reactive.Concurrency;
-using System.Reflection;
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Reactive.Concurrency;
+using System.Reflection;
 using Wikiled.Common.Net.Client;
 using Wikiled.Common.Utilities.Config;
 using Wikiled.Sentiment.Api.Request;
@@ -23,6 +23,7 @@ using Wikiled.Twitter.Modules;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
+using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Monitor.Service
@@ -33,7 +34,7 @@ namespace Wikiled.Twitter.Monitor.Service
 
         public Startup(ILoggerFactory loggerFactory, IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
@@ -87,21 +88,21 @@ namespace Wikiled.Twitter.Monitor.Service
 
             // needed to load configuration from appsettings.json
             services.AddOptions();
-            var twitter = services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
-            var sentimentConfig = services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
+            TwitterConfig twitter = services.RegisterConfiguration<TwitterConfig>(Configuration.GetSection("twitter"));
+            SentimentConfig sentimentConfig = services.RegisterConfiguration<SentimentConfig>(Configuration.GetSection("sentiment"));
 
             services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // Create the container builder.
-            var builder = new ContainerBuilder();
+            ContainerBuilder builder = new ContainerBuilder();
             SetupServices(builder, sentimentConfig);
             SetupOther(builder, sentimentConfig);
             SetupTracking(builder, twitter.Persistency);
             builder.Populate(services);
-            var appContainer = builder.Build();
+            IContainer appContainer = builder.Build();
+
             // start stream
-            appContainer.Resolve<IStreamMonitor>();
             logger.LogInformation("Ready!");
             // Create the IServiceProvider based on the container.
             return new AutofacServiceProvider(appContainer);
@@ -109,12 +110,18 @@ namespace Wikiled.Twitter.Monitor.Service
 
         private void SetupTracking(ContainerBuilder builder, string path)
         {
-            var config = new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(10), Path.Combine(path, "ratings.csv"));
-            config.Restore = true;
+            TrackingConfiguration config = new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(10), Path.Combine(path, "ratings.csv"))
+            {
+                Restore = true
+            };
+
             builder.RegisterModule(new TrackingModule(config));
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>().SingleInstance();
-            
+
+            TimingStreamConfig trackingConfig = new TimingStreamConfig(path, TimeSpan.FromDays(1));
+            builder.RegisterInstance(trackingConfig);
+            builder.RegisterType<TimingStreamSource>().As<IStreamSource>();
         }
 
         private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
@@ -123,6 +130,8 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<IpResolve>().As<IIpResolve>();
             builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
             builder.RegisterModule<TwitterModule>();
+            builder.RegisterType<TwitPersistency>().As<ITwitPersistency>();
+
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
             if (sentiment.Track)
             {
@@ -134,7 +143,7 @@ namespace Wikiled.Twitter.Monitor.Service
             }
 
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
-            builder.RegisterType<StreamMonitor>().As<IStreamMonitor>().SingleInstance();
+            builder.RegisterType<StreamMonitor>().AsSelf().As<IStreamMonitor>().SingleInstance().AutoActivate();
         }
 
         private void SetupServices(ContainerBuilder builder, SentimentConfig sentiment)
@@ -144,11 +153,13 @@ namespace Wikiled.Twitter.Monitor.Service
                                                             new HttpClient { Timeout = TimeSpan.FromMinutes(10) },
                                                             new Uri(sentiment.Url)))
                 .As<IStreamApiClientFactory>();
-            var request = new WorkRequest();
-            request.CleanText = true;
-            request.Domain = sentiment.Domain;
+            WorkRequest request = new WorkRequest
+            {
+                CleanText = true,
+                Domain = sentiment.Domain
+            };
             builder.RegisterInstance(request);
-            builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>(); 
+            builder.RegisterType<SentimentAnalysis>().As<ISentimentAnalysis>();
             logger.LogInformation("Register sentiment: {0} {1}", sentiment.Url, sentiment.Domain);
         }
     }

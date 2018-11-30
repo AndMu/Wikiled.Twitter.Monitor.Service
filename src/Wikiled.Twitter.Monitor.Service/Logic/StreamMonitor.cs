@@ -24,7 +24,11 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private IDisposable subscription;
 
-        public StreamMonitor(ILogger<StreamMonitor> logger, IAuthentication authentication, ITrackingInstance tracker, IDublicateDetectors dublicateDetectors, IMonitoringStream stream)
+        public StreamMonitor(ILogger<StreamMonitor> logger,
+                             IAuthentication authentication,
+                             ITrackingInstance tracker,
+                             IDublicateDetectors dublicateDetectors,
+                             IMonitoringStream stream)
         {
             this.authentication = authentication ?? throw new ArgumentNullException(nameof(authentication));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
