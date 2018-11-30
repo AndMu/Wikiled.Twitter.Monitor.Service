@@ -13,11 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Wikiled.Common.Net.Client;
 using Wikiled.Common.Utilities.Config;
-using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Sentiment.Api.Request;
 using Wikiled.Sentiment.Api.Service;
+using Wikiled.Sentiment.Tracking.Logic;
+using Wikiled.Sentiment.Tracking.Modules;
 using Wikiled.Server.Core.Errors;
 using Wikiled.Server.Core.Helpers;
+using Wikiled.Twitter.Modules;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
@@ -100,7 +102,6 @@ namespace Wikiled.Twitter.Monitor.Service
             var appContainer = builder.Build();
             // start stream
             appContainer.Resolve<IStreamMonitor>();
-            appContainer.Resolve<PersistencyTracking>();
             logger.LogInformation("Ready!");
             // Create the IServiceProvider based on the container.
             return new AutofacServiceProvider(appContainer);
@@ -108,17 +109,12 @@ namespace Wikiled.Twitter.Monitor.Service
 
         private void SetupTracking(ContainerBuilder builder, string path)
         {
+            var config = new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(10), Path.Combine(path, "ratings.csv"));
+            config.Restore = true;
+            builder.RegisterModule(new TrackingModule(config));
             builder.RegisterType<TrackingConfigFactory>().As<ITrackingConfigFactory>();
-
-            builder.RegisterType<Tracker>().As<ITracker>();
             builder.RegisterType<TrackingInstance>().As<ITrackingInstance>().SingleInstance();
-            builder.RegisterType<ExpireTracking>().As<ITrackingRegister>().SingleInstance();
-            builder.RegisterType<TrackingStream>().As<ITrackingRegister>().As<IRatingStream>().SingleInstance();
-
-            builder.RegisterType<PersistencyTracking>().SingleInstance();
-            builder.RegisterType<TrackingManager>().As<ITrackingManager>().SingleInstance();
-            builder.RegisterType<TrackerFactory>().As<ITrackerFactory>().SingleInstance();
-            builder.RegisterInstance(new TrackingConfiguration(TimeSpan.FromHours(1), TimeSpan.FromDays(1), Path.Combine(path, "ratings.csv")));
+            
         }
 
         private void SetupOther(ContainerBuilder builder, SentimentConfig sentiment)
@@ -126,6 +122,7 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterInstance(TaskPoolScheduler.Default).As<IScheduler>();
             builder.RegisterType<IpResolve>().As<IIpResolve>();
             builder.RegisterType<ApplicationConfiguration>().As<IApplicationConfiguration>();
+            builder.RegisterModule<TwitterModule>();
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
             if (sentiment.Track)
             {

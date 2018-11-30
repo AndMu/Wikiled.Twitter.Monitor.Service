@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
-using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Sentiment.Api.Service;
+using Wikiled.Sentiment.Tracking.Logic;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {
@@ -23,11 +23,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
         private readonly HashSet<string> users = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        public TrackingInstance(ILogger<TrackingInstance> logger,
-                                ITrackingConfigFactory trackingConfigFactory,
-                                ISentimentAnalysis sentiment,
-                                ITrackingManager manager,
-                                ITwitPersistency persistency)
+        public TrackingInstance(ILogger<TrackingInstance> logger, ITrackingConfigFactory trackingConfigFactory, ISentimentAnalysis sentiment, ITrackingManager manager, ITwitPersistency persistency)
         {
             if (trackingConfigFactory == null)
             {
@@ -36,7 +32,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 
             this.sentiment = sentiment ?? throw new ArgumentNullException(nameof(sentiment));
             this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
-            this.persistency = persistency;
+            this.persistency = persistency ?? throw new ArgumentNullException(nameof(persistency));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             Trackers = trackingConfigFactory.GetTrackers();
             foreach (var tracker in Trackers.Where(item => !item.IsKeyword))

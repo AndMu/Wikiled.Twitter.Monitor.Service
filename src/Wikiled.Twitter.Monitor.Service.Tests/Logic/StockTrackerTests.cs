@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Wikiled.Common.Utilities.Config;
-using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Tracking.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Tests.Logic

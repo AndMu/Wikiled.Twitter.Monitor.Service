@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Wikiled.Common.Net.Client;
-using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Tracking.Logic;
 
 namespace Wikiled.Twitter.Monitor.Api.Service
 {

@@ -1,4 +1,4 @@
-﻿using Wikiled.MachineLearning.Mathematics.Tracking;
+﻿using Wikiled.Sentiment.Tracking.Logic;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking
 {

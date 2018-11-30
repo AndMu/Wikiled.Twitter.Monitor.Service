@@ -2,9 +2,10 @@ using System;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using Wikiled.MachineLearning.Mathematics.Tracking;
 using Wikiled.Sentiment.Api.Service;
+using Wikiled.Sentiment.Tracking.Logic;
 using Wikiled.Twitter.Monitor.Service.Configuration;
+using Wikiled.Twitter.Monitor.Service.Logic;
 using Wikiled.Twitter.Monitor.Service.Logic.Tracking;
 
 namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
@@ -20,10 +21,13 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
 
         private Mock<ITrackingManager> manager;
 
+        private Mock<ITwitPersistency> persistency;
+
         [SetUp]
         public void SetUp()
         {
             mockSentimentAnalysis = new Mock<ISentimentAnalysis>();
+            persistency = new Mock<ITwitPersistency>();
             manager = new Mock<ITrackingManager>();
             var tracker = new Mock<ITracker>();
             manager.Setup(item => item.Resolve(It.IsAny<string>(), It.IsAny<string>())).Returns(tracker.Object);
@@ -52,24 +56,35 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
                     null,
                     trackingConfigFactory,
                     mockSentimentAnalysis.Object,
-                    manager.Object));
+                    manager.Object,
+                    persistency.Object));
             Assert.Throws<ArgumentNullException>(
                 () => new TrackingInstance(
                     new NullLogger<TrackingInstance>(),
                     null,
                     mockSentimentAnalysis.Object,
-                    manager.Object));
+                    manager.Object,
+                    persistency.Object));
             Assert.Throws<ArgumentNullException>(
                 () => new TrackingInstance(
                     new NullLogger<TrackingInstance>(),
                     trackingConfigFactory,
                     null,
-                    manager.Object));
+                    manager.Object,
+                    persistency.Object));
             Assert.Throws<ArgumentNullException>(
                 () => new TrackingInstance(
                     new NullLogger<TrackingInstance>(),
                     trackingConfigFactory,
                     mockSentimentAnalysis.Object,
+                    null,
+                    persistency.Object));
+            Assert.Throws<ArgumentNullException>(
+                () => new TrackingInstance(
+                    new NullLogger<TrackingInstance>(),
+                    trackingConfigFactory,
+                    mockSentimentAnalysis.Object,
+                    manager.Object,
                     null));
         }
 
@@ -79,7 +94,8 @@ namespace Wikiled.Twitter.Monitor.Service.Tests.Logic.Tracking
                 new NullLogger<TrackingInstance>(),
                 trackingConfigFactory,
                 mockSentimentAnalysis.Object,
-                manager.Object);
+                manager.Object,
+                persistency.Object);
         }
     }
 }

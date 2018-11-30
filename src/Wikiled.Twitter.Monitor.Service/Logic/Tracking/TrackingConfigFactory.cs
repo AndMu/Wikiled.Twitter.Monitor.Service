@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
-using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Tracking.Logic;
 using Wikiled.Twitter.Monitor.Service.Configuration;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic.Tracking

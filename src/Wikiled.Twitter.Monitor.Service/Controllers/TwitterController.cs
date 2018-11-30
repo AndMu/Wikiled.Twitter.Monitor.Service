@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using Wikiled.MachineLearning.Mathematics.Tracking;
+using Wikiled.Sentiment.Tracking.Logic;
 using Wikiled.Server.Core.ActionFilters;
 using Wikiled.Server.Core.Controllers;
-using Wikiled.Twitter.Monitor.Service.Logic;
 
 namespace Wikiled.Twitter.Monitor.Service.Controllers
 {

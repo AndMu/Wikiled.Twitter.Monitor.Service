@@ -20,7 +20,8 @@
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <packagereference Include="Microsoft.NET.Test.Sdk" Version="15.9.0"></packagereference>
-    <packagereference Include="NUnit3TestAdapter" Version="3.11.2" />    
+    <packagereference Include="NUnit3TestAdapter" Version="3.11.2" />
+    <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.3" />    
   </ItemGroup>
 
   <ItemGroup>
