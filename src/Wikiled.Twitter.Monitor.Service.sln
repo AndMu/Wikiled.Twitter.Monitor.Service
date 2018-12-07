@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Service.Tests", "Wikiled.Twitter.Monitor.Service.Tests\Wikiled.Twitter.Monitor.Service.Tests.csproj", "{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Api", "Wikiled.Twitter.Monitor.Api\Wikiled.Twitter.Monitor.Api.csproj", "{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.Twitter.Monitor.Integration.Tests", "Wikiled.Twitter.Monitor.Integration.Tests\Wikiled.Twitter.Monitor.Integration.Tests.csproj", "{5B54662B-943A-457D-88B6-39E3670FF479}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D2A06BA-03AD-4E54-8798-7B66366899CB}"
@@ -30,10 +28,6 @@ Global
 		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E332C251-C3D4-4DAE-9BE4-8AF0727653FD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{89A1E1A7-49A1-434F-82C6-A7A809E0AEF7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B54662B-943A-457D-88B6-39E3670FF479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B54662B-943A-457D-88B6-39E3670FF479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B54662B-943A-457D-88B6-39E3670FF479}.Release|Any CPU.ActiveCfg = Release|Any CPU
