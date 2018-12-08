@@ -42,10 +42,9 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Acceptance
         [Test]
         public async Task GetTrackingResults()
         {
-            var result = await analysis.GetTrackingResults(new SentimentRequest("AMD"), CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("AMD", result["AMD"].Keyword);
-            Assert.AreEqual(0, result["AMD"].Total);
+            var result = await analysis.GetTrackingResults(new SentimentRequest("AMD", "TSLA"), CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(0, result["AMD"][0].TotalMessages);
         }
 
         [Test]
