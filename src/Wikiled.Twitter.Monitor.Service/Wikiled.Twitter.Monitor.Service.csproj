@@ -13,11 +13,11 @@
     <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.1" />
     <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.10" />
-    <PackageReference Include="Wikiled.Sentiment.Tracking.Service" Version="1.0.3" />
+    <PackageReference Include="Wikiled.Sentiment.Tracking.Service" Version="1.0.6" />
     <PackageReference Include="Wikiled.Server.Core" Version="1.2.14" />
-    <PackageReference Include="Wikiled.Twitter" Version="1.5.2" />
+    <PackageReference Include="Wikiled.Twitter" Version="1.5.4" />
     <PackageReference Include="Wikiled.Common.Net" Version="1.1.10" />
-    <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.7" />
+    <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.10" />
     <PackageReference Include="Wikiled.Sentiment.Api" Version="1.1.30" />
     <PackageReference Include="Wikiled.MachineLearning" Version="2.4.0" />
   </ItemGroup>

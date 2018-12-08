@@ -23,7 +23,7 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Acceptance
         public void SetUp()
         {
             wrapper = ServerWrapper.Create<Startup>(TestContext.CurrentContext.TestDirectory, services => { });
-            analysis = new SentimentTracking(new ApiClientFactory(wrapper.Client, new Uri(wrapper.Client.BaseAddress, "api/monitor/")));
+            analysis = new SentimentTracking(new ApiClientFactory(wrapper.Client, wrapper.Client.BaseAddress));
         }
 
         [OneTimeTearDown]

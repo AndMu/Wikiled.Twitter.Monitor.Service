@@ -23,7 +23,7 @@
     <packagereference Include="Microsoft.NET.Test.Sdk" Version="15.9.0"></packagereference>
     <packagereference Include="NUnit3TestAdapter" Version="3.11.2" />
     <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.10" />
-    <PackageReference Include="Wikiled.Sentiment.Tracking.Api" Version="1.0.3" />    
+    <PackageReference Include="Wikiled.Sentiment.Tracking.Api" Version="1.0.6" />    
   </ItemGroup>
 
   <ItemGroup>
