@@ -20,10 +20,10 @@
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="NUnit" Version="3.11.0" />
-    <packagereference Include="Microsoft.NET.Test.Sdk" Version="15.9.0"></packagereference>
-    <packagereference Include="NUnit3TestAdapter" Version="3.11.2" />
-    <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.10" />
-    <PackageReference Include="Wikiled.Sentiment.Tracking.Api" Version="1.0.6" />    
+    <packagereference Include="Microsoft.NET.Test.Sdk" Version="16.0.1"></packagereference>
+    <packagereference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.24" />
+    <PackageReference Include="Wikiled.Sentiment.Tracking.Api" Version="1.0.7" />    
   </ItemGroup>
 
   <ItemGroup>
