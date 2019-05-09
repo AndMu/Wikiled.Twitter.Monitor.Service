@@ -16,14 +16,11 @@ namespace Wikiled.Twitter.Monitor.Service
 {
     public class Startup : BaseStartup
     {
-        private readonly ILogger<Startup> logger;
-
         private TwitterConfig config;
 
         public Startup(ILoggerFactory loggerFactory, IHostingEnvironment env)
             : base(loggerFactory, env)
         {
-            logger = loggerFactory.CreateLogger<Startup>();
         }
 
         public override IServiceProvider ConfigureServices(IServiceCollection services)
@@ -46,10 +43,9 @@ namespace Wikiled.Twitter.Monitor.Service
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
             builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
             builder.RegisterType<StreamMonitor>().AsSelf().As<IStreamMonitor>().SingleInstance().AutoActivate();
-            TimingStreamConfig trackingConfig = new TimingStreamConfig(GetPersistencyLocation(), TimeSpan.FromDays(1));
+            var trackingConfig = new TimingStreamConfig(GetPersistencyLocation(), TimeSpan.FromDays(1));
             builder.RegisterInstance(trackingConfig);
         }
-
 
         protected override void ConfigureSpecific(ContainerBuilder builder)
         {

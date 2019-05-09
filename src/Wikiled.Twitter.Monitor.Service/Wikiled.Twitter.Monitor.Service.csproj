@@ -9,13 +9,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.1" />
-    <PackageReference Include="NLog" Version="4.6.2" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.2" />
+    <PackageReference Include="NLog" Version="4.6.3" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
     <PackageReference Include="Wikiled.Sentiment.Tracking" Version="1.0.24" />
-    <PackageReference Include="Wikiled.Sentiment.Tracking.Service" Version="1.0.10" />
+    <PackageReference Include="Wikiled.Sentiment.Tracking.Service" Version="1.0.12" />
     <PackageReference Include="Wikiled.Server.Core" Version="1.2.17" />
-    <PackageReference Include="Wikiled.Twitter" Version="1.5.4" />
+    <PackageReference Include="Wikiled.Twitter" Version="1.5.24" />
     <PackageReference Include="Wikiled.Common.Net" Version="1.1.11" />
     <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.19" />
     <PackageReference Include="Wikiled.Sentiment.Api" Version="1.2.0" />
