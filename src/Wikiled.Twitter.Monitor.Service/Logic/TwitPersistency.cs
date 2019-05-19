@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using CsvHelper;
+using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 using Wikiled.Twitter.Persistency;
 
@@ -12,9 +14,12 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly object syncRoot = new object();
 
-        public TwitPersistency(IStreamSource streamSource)
+        private readonly ILogger<TwitPersistency> logger;
+
+        public TwitPersistency(ILogger<TwitPersistency> logger, IStreamSource streamSource)
         {
             this.streamSource = streamSource ?? throw new System.ArgumentNullException(nameof(streamSource));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Save(ITweet message, double? sentiment)
@@ -24,6 +29,25 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
                 throw new System.ArgumentNullException(nameof(message));
             }
 
+            logger.LogDebug("Saving message: {0}", message.Id);
+            try
+            {
+                SaveInternal(message, sentiment);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Persistency");
+                lock (syncRoot)
+                {
+                    streamSource.Reset();
+                }
+
+                throw;
+            }
+        }
+
+        private void SaveInternal(ITweet message, double? sentiment)
+        {
             var text = message.Text.Replace("\r\n", " ").Replace("\n", " ");
             lock (syncRoot)
             {
