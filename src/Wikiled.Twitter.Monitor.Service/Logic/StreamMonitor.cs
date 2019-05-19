@@ -52,11 +52,14 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             Auth.SetUserCredentials(auth.ConsumerKey, auth.ConsumerSecret, auth.AccessToken, auth.AccessTokenSecret);
             stream.LanguageFilters = Trackers.Languages;
             subscription = stream.MessagesReceiving
-                .ObserveOn(TaskPoolScheduler.Default)
-                .Where(item => !dublicateDetectors.HasReceived(item.Text))
-                .Select(Save)
-                .Merge()
-                .Subscribe(item => { logger.LogDebug("Processed message: {0} ({1})", item.Text, item.Language); });
+                                 .ObserveOn(TaskPoolScheduler.Default)
+                                 .Where(item => !dublicateDetectors.HasReceived(item.Text))
+                                 .Select(Save)
+                                 .Merge()
+                                 .Subscribe(
+                                     item => { logger.LogDebug("Processed message: {0} ({1})", item.Text, item.Language); },
+                                     e => logger.LogError(e, "Stream error"),
+                                     () => logger.LogInformation("Completed!"));
             var keywords = Trackers.Trackers.Where(item => item.IsKeyword).Select(item => item.Keyword).ToArray();
             var users = Trackers.Trackers.Where(item => !item.IsKeyword).Select(item => item.Keyword).ToArray();
             Task.Factory.StartNew(async () => await stream.Start(keywords, users).ConfigureAwait(false), TaskCreationOptions.LongRunning);
