@@ -18,7 +18,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
 
         private readonly ILogger<StreamMonitor> logger;
 
-        private readonly IDublicateDetectors dublicateDetectors;
+        private readonly IDuplicateDetectors duplicateDetectors;
 
         private IMonitoringStream stream;
 
@@ -27,12 +27,12 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
         public StreamMonitor(ILogger<StreamMonitor> logger,
                              IAuthentication authentication,
                              ITrackingInstance tracker,
-                             IDublicateDetectors dublicateDetectors,
+                             IDuplicateDetectors duplicateDetectors,
                              IMonitoringStream stream)
         {
             this.authentication = authentication ?? throw new ArgumentNullException(nameof(authentication));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.dublicateDetectors = dublicateDetectors ?? throw new ArgumentNullException(nameof(dublicateDetectors));
+            this.duplicateDetectors = duplicateDetectors ?? throw new ArgumentNullException(nameof(duplicateDetectors));
             Trackers = tracker ?? throw new ArgumentNullException(nameof(tracker));
             this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
             Start();
@@ -53,7 +53,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             stream.LanguageFilters = Trackers.Languages;
             subscription = stream.MessagesReceiving
                                  .ObserveOn(TaskPoolScheduler.Default)
-                                 .Where(item => !dublicateDetectors.HasReceived(item.Text))
+                                 .Where(item => !duplicateDetectors.HasReceived(item.Text))
                                  .Select(Save)
                                  .Merge()
                                  .Subscribe(

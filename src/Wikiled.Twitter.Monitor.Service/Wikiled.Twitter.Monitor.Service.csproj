@@ -18,7 +18,7 @@
     <PackageReference Include="Wikiled.Twitter" Version="1.5.28" />
     <PackageReference Include="Wikiled.Common.Net" Version="1.2.3" />
     <PackageReference Include="Wikiled.Common.Utilities" Version="1.1.19" />
-    <PackageReference Include="Wikiled.Sentiment.Api" Version="1.2.0" />
+    <PackageReference Include="Wikiled.Sentiment.Api" Version="1.2.5" />
     <PackageReference Include="Wikiled.MachineLearning" Version="2.4.22" />
   </ItemGroup>
 

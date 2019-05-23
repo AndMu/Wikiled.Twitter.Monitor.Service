@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Wikiled.Sentiment.Tracking.Service;
 using Wikiled.Server.Core.Helpers;
@@ -39,9 +40,10 @@ namespace Wikiled.Twitter.Monitor.Service
         private void SetupOther(ContainerBuilder builder)
         {
             builder.RegisterModule<TwitterModule>();
+            builder.RegisterInstance(new MemoryCache(new MemoryCacheOptions())).As<IMemoryCache>();
             builder.RegisterType<TwitPersistency>().As<ITwitPersistency>();
             builder.RegisterType<EnvironmentAuthentication>().As<IAuthentication>();
-            builder.RegisterType<DublicateDetectors>().As<IDublicateDetectors>();
+            builder.RegisterType<DuplicateDetectors>().As<IDuplicateDetectors>();
             builder.RegisterType<StreamMonitor>().AsSelf().As<IStreamMonitor>().SingleInstance().AutoActivate();
             var trackingConfig = new TimingStreamConfig(GetPersistencyLocation(), TimeSpan.FromDays(1));
             builder.RegisterInstance(trackingConfig);

@@ -5,15 +5,15 @@ using Wikiled.Text.Analysis.Twitter;
 
 namespace Wikiled.Twitter.Monitor.Service.Logic
 {
-    public class DublicateDetectors : IDublicateDetectors
+    public class DuplicateDetectors : IDuplicateDetectors
     {
         private readonly IMemoryCache cache;
 
-        private readonly ILogger<DublicateDetectors> logger;
+        private readonly ILogger<DuplicateDetectors> logger;
 
         private readonly MessageCleanup cleanup = new MessageCleanup();
 
-        public DublicateDetectors(IMemoryCache cache, ILogger<DublicateDetectors> logger)
+        public DuplicateDetectors(ILogger<DuplicateDetectors> logger, IMemoryCache cache)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -24,7 +24,7 @@ namespace Wikiled.Twitter.Monitor.Service.Logic
             text = cleanup.Cleanup(text);
             if (cache.TryGetValue(text, out bool _))
             {
-                logger.LogDebug("Found dublicate: {0}", text);
+                logger.LogDebug("Found duplicate: {0}", text);
                 return true;
             }
 

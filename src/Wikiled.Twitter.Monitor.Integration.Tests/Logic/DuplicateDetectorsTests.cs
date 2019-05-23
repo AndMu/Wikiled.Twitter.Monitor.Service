@@ -7,19 +7,19 @@ using Wikiled.Twitter.Monitor.Service.Logic;
 namespace Wikiled.Twitter.Monitor.Integration.Tests.Logic
 {
     [TestFixture]
-    public class DublicateDetectorsTests
+    public class DuplicateDetectorsTests
     {
-        private DublicateDetectors instance;
+        private DuplicateDetectors instance;
 
         private MemoryCache cache;
 
-        private readonly ILogger<DublicateDetectors> logger = new Logger<DublicateDetectors>(new NullLoggerFactory());
+        private readonly ILogger<DuplicateDetectors> logger = new Logger<DuplicateDetectors>(new NullLoggerFactory());
 
         [SetUp]
         public void SetUp()
         {
             cache = new MemoryCache(new MemoryCacheOptions());
-            instance = CreateDublicateDetectors();
+            instance = CreateDuplicateDetectors();
         }
 
         [TearDown]
@@ -39,9 +39,9 @@ namespace Wikiled.Twitter.Monitor.Integration.Tests.Logic
             Assert.IsFalse(result);
         }
 
-        private DublicateDetectors CreateDublicateDetectors()
+        private DuplicateDetectors CreateDuplicateDetectors()
         {
-            return new DublicateDetectors(cache, logger);
+            return new DuplicateDetectors(logger, cache);
         }
     }
 }
